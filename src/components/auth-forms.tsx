@@ -30,7 +30,7 @@ export function LoginForm({ next }: { next?: string }) {
         <input className="field mt-1" name="password" type="password" autoComplete="current-password" required />
       </label>
       <PendingButton label="دخول" />
-      <div className="flex justify-between text-sm text-cyan-100">
+      <div className="flex justify-between text-sm text-amber-100">
         <Link href="/register">اعمل حساب جديد</Link>
         <Link href="/forgot-password">نسيت الباسورد؟</Link>
       </div>
@@ -62,7 +62,7 @@ export function RegisterForm() {
       </label>
       <PendingButton label="إنشاء الحساب" />
       <p className="text-sm text-slate-300">
-        عندك حساب؟ <Link href="/login" className="text-cyan-200">سجّل دخول</Link>
+        عندك حساب؟ <Link href="/login" className="text-amber-200">سجّل دخول</Link>
       </p>
     </form>
   );
@@ -79,7 +79,7 @@ export function ForgotForm() {
         <input className="field mt-1" name="email" type="email" required />
       </label>
       <PendingButton label="ابعت رابط التغيير" />
-      <Link href="/login" className="block text-sm text-cyan-200">رجوع لتسجيل الدخول</Link>
+      <Link href="/login" className="block text-sm text-amber-200">رجوع لتسجيل الدخول</Link>
     </form>
   );
 }

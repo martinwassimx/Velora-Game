@@ -10,8 +10,8 @@ function Bars({ rows, value }: { rows: { date: string; count: number }[]; value:
     <div className="flex h-40 items-end gap-2">
       {rows.map((row) => (
         <div key={row.date} className="flex h-full flex-1 flex-col justify-end gap-1 text-center">
-          <span className="text-[11px] text-cyan-100">{formatNumber(value(row))}</span>
-          <div className="rounded-t-lg bg-gradient-to-t from-cyan-400 to-violet-300" style={{ height: `${Math.max(8, (value(row) / max) * 100)}%` }} />
+          <span className="text-[11px] text-amber-100">{formatNumber(value(row))}</span>
+          <div className="rounded-t-lg bg-gradient-to-t from-amber-700 to-amber-200" style={{ height: `${Math.max(8, (value(row) / max) * 100)}%` }} />
           <span className="text-[10px] text-slate-400">{row.date.slice(5)}</span>
         </div>
       ))}

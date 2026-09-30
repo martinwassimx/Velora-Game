@@ -29,7 +29,7 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
 
   return (
     <div className="space-y-4">
-      <Link href="/tasks" className="text-sm font-bold text-cyan-200">
+      <Link href="/tasks" className="text-sm font-bold text-amber-200">
         رجوع للمهام
       </Link>
       <section className="card p-5">

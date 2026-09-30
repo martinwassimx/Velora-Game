@@ -50,7 +50,7 @@ export default async function ProfilePage({
       <section className="card p-4">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-extrabold">الشارات</h2>
-          <Link href="/achievements" className="text-sm font-bold text-cyan-200">كل الإنجازات</Link>
+          <Link href="/achievements" className="text-sm font-bold text-amber-200">كل الإنجازات</Link>
         </div>
         {badges.length === 0 ? <p className="text-slate-300">لسه مفيش شارات. خلّص أول مهمة.</p> : (
           <div className="flex flex-wrap gap-2">
@@ -63,8 +63,8 @@ export default async function ProfilePage({
         )}
       </section>
       <div className="flex gap-3 text-sm font-bold">
-        <Link href="/submissions" className="text-cyan-200">طلباتي</Link>
-        <Link href="/notifications" className="text-cyan-200">الإشعارات</Link>
+        <Link href="/submissions" className="text-amber-200">طلباتي</Link>
+        <Link href="/notifications" className="text-amber-200">الإشعارات</Link>
       </div>
       <ProfileForm username={profile.username} />
       <PasswordForm />

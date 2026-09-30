@@ -37,7 +37,7 @@ export default async function AdminUserPage({
 
   return (
     <div className="space-y-4">
-      <Link href="/admin/users" className="text-sm font-bold text-cyan-200">رجوع للمستخدمين</Link>
+      <Link href="/admin/users" className="text-sm font-bold text-amber-200">رجوع للمستخدمين</Link>
       <PageHeader title={person.username} subtitle={person.email} />
       {query.ok && messages[query.ok] ? <Alert tone="ok">{messages[query.ok]}</Alert> : null}
       {query.error ? <Alert tone="error">{query.error}</Alert> : null}

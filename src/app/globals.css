@@ -2,11 +2,11 @@
 
 :root {
   color-scheme: dark;
-  --bg: #070b16;
-  --card: rgba(12, 20, 42, 0.82);
-  --line: rgba(125, 211, 252, 0.22);
-  --text: #f8fafc;
-  --muted: #b6c3da;
+  --bg: #100c08;
+  --card: rgba(32, 22, 12, 0.86);
+  --line: rgba(245, 193, 90, 0.28);
+  --text: #fff8ec;
+  --muted: #e6d3b0;
 }
 
 * { box-sizing: border-box; }
@@ -16,8 +16,8 @@ html, body { min-height: 100%; }
 body {
   margin: 0;
   background:
-    radial-gradient(900px 500px at 100% -10%, rgba(168, 85, 247, 0.28), transparent 55%),
-    radial-gradient(700px 420px at 0% 0%, rgba(34, 211, 238, 0.18), transparent 50%),
+    radial-gradient(900px 520px at 100% -10%, rgba(212, 146, 42, 0.34), transparent 55%),
+    radial-gradient(720px 460px at 0% 0%, rgba(245, 193, 90, 0.2), transparent 52%),
     var(--bg);
   color: var(--text);
   font-family: "Cairo", sans-serif;
@@ -29,8 +29,8 @@ body::before {
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    linear-gradient(rgba(245, 193, 90, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 193, 90, 0.05) 1px, transparent 1px);
   background-size: 42px 42px;
   mask-image: radial-gradient(circle at center, black, transparent 80%);
 }
@@ -63,9 +63,9 @@ button, input, select, textarea { font: inherit; }
 .btn-soon:disabled { cursor: not-allowed; opacity: 0.55; }
 
 .btn-primary {
-  color: #041018;
-  background: linear-gradient(90deg, #67e8f9, #c4b5fd 55%, #fde68a);
-  box-shadow: 0 0 24px rgba(103, 232, 249, 0.28);
+  color: #2a1604;
+  background: linear-gradient(90deg, #f6d48a, #e8a317 55%, #c9862a);
+  box-shadow: 0 0 24px rgba(232, 163, 23, 0.35);
 }
 .btn-ghost {
   color: #e2e8f0;
@@ -90,7 +90,7 @@ button, input, select, textarea { font: inherit; }
   padding: 0.8rem 0.95rem;
   outline: none;
 }
-.field:focus { border-color: #67e8f9; box-shadow: 0 0 0 3px rgba(103, 232, 249, 0.18); }
+.field:focus { border-color: #f5c15a; box-shadow: 0 0 0 3px rgba(245, 193, 90, 0.2); }
 
 .chip {
   display: inline-flex;
@@ -114,8 +114,8 @@ button, input, select, textarea { font: inherit; }
   font-weight: 700;
 }
 .nav-link.active {
-  color: #041018;
-  background: linear-gradient(90deg, #67e8f9, #c4b5fd);
+  color: #2a1604;
+  background: linear-gradient(90deg, #f6d48a, #e8a317);
 }
 
 .confetti span {

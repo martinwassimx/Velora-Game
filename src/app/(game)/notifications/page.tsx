@@ -39,7 +39,7 @@ export default async function NotificationsPage() {
                 {!item.is_read ? (
                   <form action={markNotificationRead}>
                     <input type="hidden" name="id" value={item.id} />
-                    <button className="text-sm font-bold text-cyan-200">تمام</button>
+                    <button className="text-sm font-bold text-amber-200">تمام</button>
                   </form>
                 ) : null}
               </div>

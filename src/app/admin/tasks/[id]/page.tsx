@@ -31,7 +31,7 @@ export default async function EditTaskPage({
 
   return (
     <div className="space-y-4">
-      <Link href="/admin/tasks" className="text-sm font-bold text-cyan-200">رجوع للمهام</Link>
+      <Link href="/admin/tasks" className="text-sm font-bold text-amber-200">رجوع للمهام</Link>
       <PageHeader title="تعديل المهمة" subtitle={current.title} />
       {query.error ? <Alert tone="error">{query.error}</Alert> : null}
       <div className="flex flex-wrap gap-2">

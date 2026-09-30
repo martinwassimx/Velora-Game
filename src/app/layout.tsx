@@ -13,12 +13,13 @@ export const metadata: Metadata = {
     template: "%s | مهام مارو جيصه",
   },
   description: "لعبة المهام اليومية. خلّص المهام، اجمع XP وكوينز، وحافظ على الستريك.",
+  icons: { icon: "/maro.jpg", apple: "/maro.jpg" },
 };
 
 export const dynamic = "force-dynamic";
 
 export const viewport: Viewport = {
-  themeColor: "#070b16",
+  themeColor: "#100c08",
   width: "device-width",
   initialScale: 1,
 };

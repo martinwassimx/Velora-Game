@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { TaskList } from "@/components/task-list";
-import { Stat, XpBar } from "@/components/ui";
+import { BrandMark, Stat, XpBar } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { formatNumber } from "@/lib/format";
 import { getRewardShop } from "@/lib/rewards";
@@ -37,10 +37,11 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-5">
-      <section className="card p-5">
-        <p className="text-sm font-bold text-cyan-200">أهلاً يا {profile.username} 👋</p>
+      <section className="card flex flex-col items-center p-5 text-center">
+        <BrandMark size="lg" />
+        <p className="mt-4 text-sm font-bold text-amber-200">أهلاً يا {profile.username} 👋</p>
         <h1 className="mt-1 text-3xl font-black">جاهز لمهمة النهارده؟ 🎮</h1>
-        <div className="mt-5">
+        <div className="mt-5 w-full">
           <XpBar level={level.level} xp={level.xp} floorXp={level.floor_xp} nextXp={level.next_xp} />
         </div>
       </section>
@@ -77,7 +78,7 @@ export default async function HomePage() {
       <section>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-xl font-extrabold">مهمة النهارده</h2>
-          <Link href="/tasks" className="text-sm font-bold text-cyan-200">
+          <Link href="/tasks" className="text-sm font-bold text-amber-200">
             كل المهام
           </Link>
         </div>

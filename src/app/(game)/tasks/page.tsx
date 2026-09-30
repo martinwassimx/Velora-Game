@@ -40,7 +40,7 @@ export default async function TasksPage({
       <PageHeader title="المهام" subtitle="اختار مهمة وخلّصها عشان تاخد المكافأة بعد الموافقة." />
       <div className="mb-4 flex gap-2 overflow-x-auto">
         {filters.map((item) => (
-          <a key={item.id} href={`/tasks?filter=${item.id}`} className={`chip shrink-0 ${filter === item.id ? "bg-cyan-300 text-slate-950" : ""}`}>
+          <a key={item.id} href={`/tasks?filter=${item.id}`} className={`chip shrink-0 ${filter === item.id ? "bg-amber-300 text-[#2a1604]" : ""}`}>
             {item.label}
           </a>
         ))}

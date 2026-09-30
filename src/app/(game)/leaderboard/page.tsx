@@ -43,7 +43,7 @@ export default async function LeaderboardPage({
           {!enabled ? <p className="mb-3 text-sm text-amber-200">المتصدرين مقفولين على اللاعبين، وأنت شايفهم لأنك أدمن.</p> : null}
           <div className="mb-4 flex gap-2 overflow-x-auto">
             {sorts.map((item) => (
-              <a key={item.id} href={`/leaderboard?sort=${item.id}`} className={`chip shrink-0 ${sort === item.id ? "bg-cyan-300 text-slate-950" : ""}`}>
+              <a key={item.id} href={`/leaderboard?sort=${item.id}`} className={`chip shrink-0 ${sort === item.id ? "bg-amber-300 text-[#2a1604]" : ""}`}>
                 {item.label}
               </a>
             ))}
@@ -51,7 +51,7 @@ export default async function LeaderboardPage({
           {error ? <EmptyState title="مقدرناش نحمّل الترتيب" body="جرّب تاني بعد شوية." /> : null}
           <div className="grid gap-2">
             {rows.map((row) => (
-              <article key={row.user_id} className={`card flex items-center gap-3 p-3 ${row.is_me ? "border-cyan-300/60" : ""}`}>
+              <article key={row.user_id} className={`card flex items-center gap-3 p-3 ${row.is_me ? "border-amber-300/60" : ""}`}>
                 <span className="w-10 text-center text-lg font-black">{medal(Number(row.place))}</span>
                 <Avatar name={row.username} path={row.avatar_url} size="sm" />
                 <div className="min-w-0 flex-1">

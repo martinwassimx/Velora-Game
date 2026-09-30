@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/lib/actions/auth";
+import { BrandMark } from "@/components/ui";
 
 const links = [
   { href: "/admin", label: "لوحة التحكم" },
@@ -20,10 +21,13 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   return (
     <div className="min-h-dvh md:ps-72">
-      <aside className="fixed inset-y-0 start-0 z-30 hidden w-72 flex-col border-e border-white/10 bg-slate-950/85 p-4 md:flex">
-        <div className="px-2 py-3">
-          <p className="text-xs font-bold text-amber-200">أدمن</p>
-          <p className="text-2xl font-black">لوحة التحكم</p>
+      <aside className="fixed inset-y-0 start-0 z-30 hidden w-72 flex-col border-e border-amber-200/10 bg-[#140e08]/90 p-4 md:flex">
+        <div className="flex items-center gap-3 px-2 py-3">
+          <BrandMark size="sm" />
+          <div>
+            <p className="text-xs font-bold text-amber-200">أدمن</p>
+            <p className="text-xl font-black leading-6">لوحة التحكم</p>
+          </div>
         </div>
         <nav className="space-y-1">
           {links.map((link) => {

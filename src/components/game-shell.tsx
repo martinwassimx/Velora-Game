@@ -72,7 +72,7 @@ export function GameShell({
         </form>
       </aside>
 
-      <div className="mx-auto w-full max-w-5xl px-4 py-4 pb-28 md:py-8 md:pb-10">
+      <div className="mx-auto w-full max-w-5xl px-4 py-4 pb-[calc(7.5rem+env(safe-area-inset-bottom))] md:py-8 md:pb-10">
         <div className="mb-4 flex items-center justify-between gap-3 md:hidden">
           <div className="flex items-center gap-2">
             <BrandMark size="sm" />
@@ -90,7 +90,7 @@ export function GameShell({
         {children}
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-amber-200/10 bg-[#140e08]/95 px-1 py-2 backdrop-blur-xl md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-amber-200/10 bg-[#140e08]/95 px-1 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur-xl md:hidden">
         {links.map((link) => (
           <Link key={link.href} href={link.href} className={`relative grid place-items-center rounded-xl px-1 py-1 text-center text-[11px] font-bold ${active(pathname, link.href) ? "text-amber-200" : "text-stone-400"}`}>
             <span className="text-lg">{link.icon}</span>

@@ -14,6 +14,13 @@ function standalone() {
   return window.matchMedia("(display-mode: standalone)").matches || Boolean(nav.standalone);
 }
 
+function phone() {
+  const agent = navigator.userAgent;
+  if (/iphone|ipad|ipod/i.test(agent)) return true;
+  if (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1) return true;
+  return /android/i.test(agent) && /mobile/i.test(agent);
+}
+
 function iosDevice() {
   const agent = navigator.userAgent;
   return /iphone|ipad|ipod/i.test(agent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
@@ -28,7 +35,7 @@ export function InstallPrompt() {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").catch(() => undefined);
     }
-    if (standalone()) return;
+    if (!phone() || standalone()) return;
     const hiddenUntil = Number(localStorage.getItem(HIDE_KEY) ?? 0);
     if (hiddenUntil > Date.now()) return;
 

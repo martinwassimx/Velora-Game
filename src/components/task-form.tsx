@@ -13,6 +13,7 @@ export function TaskForm({
   defaults,
   deadlineValue,
   firstOnly = false,
+  firstCoinBonus,
 }: {
   task?: Task | null;
   users: { id: string; username: string }[];
@@ -20,6 +21,7 @@ export function TaskForm({
   defaults: Record<string, { xp: number; coins: number }>;
   deadlineValue: string;
   firstOnly?: boolean;
+  firstCoinBonus?: number;
 }) {
   const [state, action, pending] = useActionState(saveTask, null);
   const initialDifficulty = task?.difficulty ?? "medium";
@@ -27,6 +29,8 @@ export function TaskForm({
   const [difficulty, setDifficulty] = useState(initialDifficulty);
   const [xp, setXp] = useState(task?.xp_reward ?? reward.xp);
   const [coins, setCoins] = useState(task?.coin_reward ?? reward.coins);
+  const [firstBonus, setFirstBonus] = useState(firstCoinBonus ?? reward.coins);
+  const [bonusFollowsCoins, setBonusFollowsCoins] = useState(firstCoinBonus === undefined);
   const [assignTo, setAssignTo] = useState(task?.assign_to ?? "everyone");
   const [query, setQuery] = useState("");
   const visibleUsers = useMemo(
@@ -64,6 +68,7 @@ export function TaskForm({
               if (next) {
                 setXp(next.xp);
                 setCoins(next.coins);
+                if (bonusFollowsCoins) setFirstBonus(next.coins);
               }
             }}
           >
@@ -84,7 +89,31 @@ export function TaskForm({
         </label>
         <label className="text-sm font-bold">
           مكافأة الكوينز
-          <input className="field mt-1" type="number" min={0} name="coin_reward" value={coins} onChange={(event) => setCoins(Number(event.target.value))} />
+          <input className="field mt-1" type="number" min={0} name="coin_reward" value={coins} onChange={(event) => {
+            const next = Number(event.target.value);
+            setCoins(next);
+            if (bonusFollowsCoins) setFirstBonus(next);
+          }} />
+        </label>
+        <label className="text-sm font-bold">
+          بونص كوينز أول واحد
+          <input
+            className="field mt-1"
+            type="number"
+            min={0}
+            max={1000000}
+            name="first_coin_bonus"
+            value={firstBonus}
+            onChange={(event) => {
+              setBonusFollowsCoins(false);
+              setFirstBonus(Number(event.target.value));
+            }}
+          />
+          <span className="mt-1 block font-normal text-slate-300">
+            {firstBonus > 0
+              ? `أول واحد ياخد ${coins + firstBonus} كوين. الباقي ياخدوا ${coins}.`
+              : "أول واحد هياخد نفس عدد الكوينز."}
+          </span>
         </label>
         <label className="text-sm font-bold">
           أقصى عدد إكمال

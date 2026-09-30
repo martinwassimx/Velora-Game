@@ -4,6 +4,7 @@ import { TaskForm } from "@/components/task-form";
 import { Alert, PageHeader } from "@/components/ui";
 import { deleteTask, duplicateTask } from "@/lib/actions/admin";
 import { requireAdmin } from "@/lib/auth";
+import { firstSubmitBonus, getFirstSubmitBonuses } from "@/lib/first-bonus";
 import { getFirstOnlyTaskIds } from "@/lib/first-only";
 import { FALLBACK_REWARDS } from "@/lib/constants";
 import { toLocalInput } from "@/lib/format";
@@ -29,7 +30,7 @@ export default async function EditTaskPage({
   const current = task as Task;
   const settings = config as PublicConfig | null;
   const timeZone = settings?.timezone ?? "Africa/Cairo";
-  const firstOnlyIds = await getFirstOnlyTaskIds();
+  const [firstOnlyIds, firstBonuses] = await Promise.all([getFirstOnlyTaskIds(), getFirstSubmitBonuses()]);
 
   return (
     <div className="space-y-4">
@@ -53,6 +54,7 @@ export default async function EditTaskPage({
         defaults={{ ...FALLBACK_REWARDS, ...(settings?.difficulty_defaults ?? {}) }}
         deadlineValue={toLocalInput(current.deadline, timeZone)}
         firstOnly={firstOnlyIds.has(current.id)}
+        firstCoinBonus={firstSubmitBonus(firstBonuses, current.id, current.coin_reward)}
       />
     </div>
   );

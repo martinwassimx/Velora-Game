@@ -1,6 +1,7 @@
 import { ReviewCard } from "@/components/admin-panels";
 import { EmptyState, PageHeader } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth";
+import { firstSubmitBonus, getFirstSubmitBonuses } from "@/lib/first-bonus";
 import { formatDate } from "@/lib/format";
 import { signedPhoto } from "@/lib/media";
 import type { PublicConfig } from "@/lib/types";
@@ -31,6 +32,7 @@ export default async function AdminSubmissionsPage() {
     supabase.rpc("get_public_config"),
   ]);
   const rows = (data ?? []) as ReviewRow[];
+  const firstBonuses = await getFirstSubmitBonuses();
   const taskIds = [...new Set(rows.map((row) => row.task_id))];
   const { data: history } = taskIds.length
     ? await supabase.from("task_submissions").select("id, task_id, created_at").in("task_id", taskIds).order("created_at", { ascending: true }).order("id", { ascending: true })
@@ -58,6 +60,7 @@ export default async function AdminSubmissionsPage() {
           task={one(row.tasks)?.title ?? "مهمة"}
           xp={one(row.tasks)?.xp_reward ?? 0}
           coins={one(row.tasks)?.coin_reward ?? 0}
+          firstCoinBonus={firstSubmitBonus(firstBonuses, row.task_id, one(row.tasks)?.coin_reward ?? 0)}
           note={row.note}
           imageUrl={imageMap.get(row.id) ?? null}
           createdAt={formatDate(row.created_at, timeZone)}

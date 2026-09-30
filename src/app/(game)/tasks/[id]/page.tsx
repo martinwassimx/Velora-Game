@@ -6,6 +6,7 @@ import { requireUser } from "@/lib/auth";
 import { DIFFICULTY_LABEL, STATUS_LABEL } from "@/lib/constants";
 import { formatDate, formatNumber } from "@/lib/format";
 import { signedPhoto } from "@/lib/media";
+import { firstSubmitBonus, getFirstSubmitBonuses } from "@/lib/first-bonus";
 import { getFirstOnlyTaskIds, taskClaimedBySomeoneElse } from "@/lib/first-only";
 import { describeTask, firstSubmitterCoins } from "@/lib/tasks";
 import type { PublicConfig, Submission, Task } from "@/lib/types";
@@ -22,7 +23,8 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
 
   const current = task as Task;
   const rows = (submissions ?? []) as Submission[];
-  const firstOnlyIds = await getFirstOnlyTaskIds();
+  const [firstOnlyIds, firstBonuses] = await Promise.all([getFirstOnlyTaskIds(), getFirstSubmitBonuses()]);
+  const firstExtra = firstSubmitBonus(firstBonuses, current.id, current.coin_reward);
   const firstOnly = firstOnlyIds.has(current.id);
   const claimed = firstOnly ? await taskClaimedBySomeoneElse(current.id, profile.id) : false;
   const info = describeTask(current, rows, claimed);
@@ -40,7 +42,10 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
         <div className="flex flex-wrap gap-2">
           <span className="chip">{DIFFICULTY_LABEL[current.difficulty]}</span>
           <span className="chip">⚡ {formatNumber(current.xp_reward)} XP</span>
-          <span className="chip">🪙 {formatNumber(current.coin_reward)} · أول واحد {formatNumber(firstSubmitterCoins(current.coin_reward))}</span>
+          <span className="chip">
+            🪙 {formatNumber(current.coin_reward)}
+            {firstExtra > 0 ? ` · أول واحد ${formatNumber(firstSubmitterCoins(current.coin_reward, firstExtra))}` : ""}
+          </span>
           <span className="chip">{STATUS_LABEL[info.state] ?? "متاحة"}</span>
         </div>
         <h1 className="mt-3 text-3xl font-black">{current.title}</h1>
@@ -54,7 +59,11 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
         <p className="mt-4 text-sm text-slate-300">
           الميعاد: {current.deadline ? formatDate(current.deadline, timeZone) : "مفيش ديدلاين"} · اتعملت {formatDate(current.created_at, timeZone)}
         </p>
-        <p className="mt-2 text-sm text-amber-200">أول واحد يبعت المهمة ياخد ضعف الكوينز. الباقي ياخدوا العدد العادي.</p>
+        {firstExtra > 0 ? (
+          <p className="mt-2 text-sm text-amber-200">
+            أول واحد يبعت المهمة ياخد {formatNumber(firstExtra)} كوين زيادة. الباقي ياخدوا {formatNumber(current.coin_reward)}.
+          </p>
+        ) : null}
         {firstOnly ? <p className="mt-2 text-sm text-amber-200">المهمة دي لأول واحد بس. لما حد يبعتها، تقفل على الباقي.</p> : null}
         {current.requires_photo ? <p className="mt-2 text-sm text-amber-200">المهمة دي محتاجة صورة.</p> : null}
       </section>

@@ -16,6 +16,7 @@ export function TaskList({
   timeZone,
   firstOnlyIds,
   takenIds,
+  firstBonuses,
   emptyTitle = "مفيش مهام دلوقتي",
   emptyBody = "استنى الأدمن ينزل مهمة جديدة.",
 }: {
@@ -24,6 +25,7 @@ export function TaskList({
   timeZone: string;
   firstOnlyIds?: Set<string>;
   takenIds?: Set<string>;
+  firstBonuses?: Map<string, number>;
   emptyTitle?: string;
   emptyBody?: string;
 }) {
@@ -33,6 +35,7 @@ export function TaskList({
     <div className="grid gap-3">
       {tasks.map((task) => {
         const mineHolds = submissions.some((item) => item.task_id === task.id && (item.status === "pending" || item.status === "approved"));
+        const firstExtra = firstBonuses?.has(task.id) ? firstBonuses.get(task.id)! : task.coin_reward;
         const info = describeTask(task, submissions, Boolean(takenIds?.has(task.id) && !mineHolds));
         return (
           <Link key={task.id} href={`/tasks/${task.id}`} className="card block p-4 transition hover:-translate-y-0.5">
@@ -44,7 +47,10 @@ export function TaskList({
             <div className="mt-3 flex flex-wrap gap-2 text-sm">
               <span className="chip">{DIFFICULTY_LABEL[task.difficulty]}</span>
               <span className="chip">⚡ {formatNumber(task.xp_reward)} XP</span>
-              <span className="chip">🪙 {formatNumber(task.coin_reward)} · أول واحد {formatNumber(firstSubmitterCoins(task.coin_reward))}</span>
+              <span className="chip">
+                🪙 {formatNumber(task.coin_reward)}
+                {firstExtra > 0 ? ` · أول واحد ${formatNumber(firstSubmitterCoins(task.coin_reward, firstExtra))}` : ""}
+              </span>
               {firstOnlyIds?.has(task.id) ? <span className="chip">🏁 لأول واحد بس</span> : null}
               {task.requires_photo ? <span className="chip">📷 صورة</span> : null}
               <span className="chip">⏰ {task.deadline ? formatDate(task.deadline, timeZone) : "من غير ميعاد"}</span>

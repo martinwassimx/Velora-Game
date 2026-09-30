@@ -1,6 +1,7 @@
 import { TaskList } from "@/components/task-list";
 import { PageHeader } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
+import { getFirstSubmitBonuses } from "@/lib/first-bonus";
 import { getFirstOnlyTaskIds, takenFirstOnlyTaskIds } from "@/lib/first-only";
 import { describeTask } from "@/lib/tasks";
 import type { PublicConfig, Task } from "@/lib/types";
@@ -21,7 +22,7 @@ export default async function TasksPage({
   const settings = config as PublicConfig | null;
   const taskRows = (tasks ?? []) as Task[];
   const submissionRows = submissions ?? [];
-  const firstOnlyIds = await getFirstOnlyTaskIds();
+  const [firstOnlyIds, firstBonuses] = await Promise.all([getFirstOnlyTaskIds(), getFirstSubmitBonuses()]);
   const takenIds = await takenFirstOnlyTaskIds(taskRows.map((task) => task.id).filter((id) => firstOnlyIds.has(id)));
   const visible = taskRows.filter((task) => {
     const mineHolds = submissionRows.some((item) => item.task_id === task.id && (item.status === "pending" || item.status === "approved"));
@@ -49,7 +50,7 @@ export default async function TasksPage({
           </a>
         ))}
       </div>
-      <TaskList tasks={visible} submissions={submissionRows} timeZone={settings?.timezone ?? "Africa/Cairo"} firstOnlyIds={firstOnlyIds} takenIds={takenIds} />
+      <TaskList tasks={visible} submissions={submissionRows} timeZone={settings?.timezone ?? "Africa/Cairo"} firstOnlyIds={firstOnlyIds} takenIds={takenIds} firstBonuses={firstBonuses} />
     </div>
   );
 }

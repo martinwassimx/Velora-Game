@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { siteUrl } from "@/lib/site";
 import { arabicError } from "@/lib/errors";
 import { zonedInputToIso } from "@/lib/format";
+import { getFirstSubmitBonuses, setFirstSubmitBonus } from "@/lib/first-bonus";
 import { getFirstOnlyTaskIds, setTaskFirstOnly } from "@/lib/first-only";
 import { firstSubmitterCoins } from "@/lib/tasks";
 import type { ActionState } from "@/lib/types";
@@ -44,6 +45,11 @@ export async function saveTask(_prev: ActionState, formData: FormData): Promise<
     assign_to: String(formData.get("assign_to") ?? "everyone"),
   };
 
+  const firstBonus = readBonus(formData.get("first_coin_bonus"));
+  if (firstBonus === null) return { error: "بونص أول واحد لازم يكون رقم من 0 لحد 1000000" };
+  const coinReward = Number(payload.coin_reward);
+  if (Number.isInteger(coinReward) && coinReward + firstBonus > 1000000) return { error: "بونص أول واحد كبير أوي" };
+
   const { data, error } = await supabase.rpc("admin_save_task", {
     p_id: idValue || null,
     p_payload: payload,
@@ -51,6 +57,7 @@ export async function saveTask(_prev: ActionState, formData: FormData): Promise<
   });
   if (error) return { error: arabicError(error.message) };
   await setTaskFirstOnly(String(data), formData.get("first_only") === "on");
+  await setFirstSubmitBonus(String(data), firstBonus);
 
   refreshAdmin();
   redirect(`/admin/tasks/${data}`);
@@ -62,6 +69,7 @@ export async function deleteTask(formData: FormData) {
   const { error } = await supabase.rpc("admin_delete_task", { p_id: id });
   if (error) redirect(`/admin/tasks/${id}?error=${encodeURIComponent(arabicError(error.message))}`);
   await setTaskFirstOnly(id, false);
+  await setFirstSubmitBonus(id, null);
   refreshAdmin();
   redirect("/admin/tasks?ok=deleted");
 }
@@ -73,6 +81,8 @@ export async function duplicateTask(formData: FormData) {
   if (error) redirect(`/admin/tasks/${id}?error=${encodeURIComponent(arabicError(error.message))}`);
   const firstOnly = await getFirstOnlyTaskIds();
   if (firstOnly.has(id)) await setTaskFirstOnly(String(data), true);
+  const firstBonuses = await getFirstSubmitBonuses();
+  if (firstBonuses.has(id)) await setFirstSubmitBonus(String(data), firstBonuses.get(id)!);
   refreshAdmin();
   redirect(`/admin/tasks/${data}`);
 }
@@ -108,7 +118,9 @@ export async function reviewSubmission(_prev: ActionState, formData: FormData): 
     .limit(1)
     .maybeSingle();
   const firstSubmit = firstRow?.id === submission.id;
-  const baseCoins = firstSubmit ? firstSubmitterCoins(task.coin_reward) : task.coin_reward;
+  const firstBonuses = await getFirstSubmitBonuses();
+  const firstExtra = firstBonuses.has(submission.task_id) ? firstBonuses.get(submission.task_id)! : task.coin_reward;
+  const baseCoins = firstSubmit ? firstSubmitterCoins(task.coin_reward, firstExtra) : task.coin_reward;
   const xp = task.xp_reward + bonusXp;
   const coins = baseCoins + bonusCoins;
   if (xp > 1000000 || coins > 1000000) return { error: "البونص كبير أوي" };
@@ -150,7 +162,7 @@ export async function reviewSubmission(_prev: ActionState, formData: FormData): 
     user_id: submission.user_id,
     title: approve ? "✅ المهمة اتقبلت" : "❌ المهمة اترفضت",
     body: approve
-      ? `اتقبلت «${task.title}» وخدت ${xp} XP و ${coins} كوين.${firstSubmit && baseCoins > task.coin_reward ? " أول واحد بعت المهمة، فالكوينز اتضاعفت." : ""}${bonusXp > 0 || bonusCoins > 0 ? ` وبونص ${bonusXp} XP و ${bonusCoins} كوين عشان الإجابة كانت حلوة.` : ""}`
+      ? `اتقبلت «${task.title}» وخدت ${xp} XP و ${coins} كوين.${firstSubmit && firstExtra > 0 ? ` أول واحد بعت المهمة، فخد ${firstExtra} كوين زيادة.` : ""}${bonusXp > 0 || bonusCoins > 0 ? ` وبونص ${bonusXp} XP و ${bonusCoins} كوين عشان الإجابة كانت حلوة.` : ""}`
       : `اترفضت «${task.title}». السبب: ${reason}`,
     type: approve ? "submission_approved" : "submission_rejected",
   });
@@ -161,7 +173,7 @@ export async function reviewSubmission(_prev: ActionState, formData: FormData): 
     target_id: id,
     description: `${approve ? "قبول" : "رفض"} مهمة: ${task.title}`,
     metadata: approve
-      ? { user_id: submission.user_id, xp, coins, bonus_xp: bonusXp, bonus_coins: bonusCoins, first_submit: firstSubmit }
+      ? { user_id: submission.user_id, xp, coins, bonus_xp: bonusXp, bonus_coins: bonusCoins, first_submit: firstSubmit, first_extra: firstExtra }
       : { user_id: submission.user_id, reason },
   });
 
@@ -171,8 +183,8 @@ export async function reviewSubmission(_prev: ActionState, formData: FormData): 
     ok: approve
       ? bonusXp > 0 || bonusCoins > 0
         ? `اتقبلت المهمة. اللاعب خد ${xp} XP و ${coins} كوين، منهم بونص ${bonusXp} XP و ${bonusCoins} كوين.`
-        : firstSubmit && baseCoins > task.coin_reward
-          ? "اتقبلت المهمة. أول تسليم، فالكوينز اتضاعفت."
+        : firstSubmit && firstExtra > 0
+          ? `اتقبلت المهمة. أول تسليم، فخد ${firstExtra} كوين زيادة.`
           : "اتقبلت المهمة واتكافأ اللاعب"
       : "اترفضت المهمة",
   };

@@ -26,6 +26,7 @@ export function ReviewCard({
   createdAt,
   xp,
   coins,
+  firstCoinBonus,
   firstSubmit = false,
 }: {
   id: string;
@@ -36,6 +37,7 @@ export function ReviewCard({
   createdAt: string;
   xp: number;
   coins: number;
+  firstCoinBonus: number;
   firstSubmit?: boolean;
 }) {
   const [state, action, pending] = useActionState(reviewSubmission, null);
@@ -51,9 +53,11 @@ export function ReviewCard({
             {username} · {createdAt}
           </p>
           <p className="text-sm text-amber-200">
-            المكافأة: {formatNumber(xp)} XP و {formatNumber(firstSubmit ? firstSubmitterCoins(coins) : coins)} كوين
+            المكافأة: {formatNumber(xp)} XP و {formatNumber(firstSubmit ? firstSubmitterCoins(coins, firstCoinBonus) : coins)} كوين
           </p>
-          {firstSubmit ? <p className="text-sm font-bold text-amber-200">أول تسليم · هيخد ضعف الكوينز</p> : null}
+          {firstSubmit && firstCoinBonus > 0 ? (
+            <p className="text-sm font-bold text-amber-200">أول تسليم · هيخد {formatNumber(firstCoinBonus)} كوين زيادة</p>
+          ) : null}
         </div>
       </div>
       {note ? <p className="rounded-2xl bg-white/5 p-3 text-sm leading-7">{note}</p> : null}

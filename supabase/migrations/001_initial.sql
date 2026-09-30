@@ -1335,6 +1335,7 @@ declare
   v_reward jsonb;
   v_reason text;
   v_coins integer;
+  v_extra integer;
 begin
   perform public.assert_admin();
 
@@ -1372,12 +1373,21 @@ begin
       raise exception 'الطلب ده اتراجع قبل كده';
     end if;
 
+    select nullif(value ->> v_sub.task_id::text, '')::integer
+    into v_extra
+    from public.settings
+    where key = 'first_submit_coin_bonus';
+
+    if v_extra is null or v_extra < 0 then
+      v_extra := v_task.coin_reward;
+    end if;
+
     if not exists (
       select 1 from public.task_submissions older
       where older.task_id = v_sub.task_id
         and older.created_at < v_sub.created_at
     ) then
-      v_coins := least(v_task.coin_reward * 2, 1000000);
+      v_coins := least(v_task.coin_reward + v_extra, 1000000);
     else
       v_coins := v_task.coin_reward;
     end if;

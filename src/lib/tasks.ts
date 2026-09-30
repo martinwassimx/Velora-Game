@@ -1,7 +1,8 @@
 import type { Task } from "@/lib/types";
 
-export function firstSubmitterCoins(coins: number) {
-  return Math.min(coins * 2, 1000000);
+export function firstSubmitterCoins(coins: number, bonus = coins) {
+  const extra = Math.max(0, Math.floor(Number.isFinite(bonus) ? bonus : coins));
+  return Math.min(coins + extra, 1000000);
 }
 
 export function describeTask(

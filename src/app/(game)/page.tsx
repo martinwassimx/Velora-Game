@@ -3,6 +3,7 @@ import { TaskList } from "@/components/task-list";
 import { BrandMark, Stat, XpBar } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { formatNumber } from "@/lib/format";
+import { getFirstSubmitBonuses } from "@/lib/first-bonus";
 import { getFirstOnlyTaskIds, takenFirstOnlyTaskIds } from "@/lib/first-only";
 import { getRewardShop } from "@/lib/rewards";
 import { describeTask } from "@/lib/tasks";
@@ -33,7 +34,7 @@ export default async function HomePage() {
   };
   const taskRows = (tasks ?? []) as Task[];
   const submissionRows = submissions ?? [];
-  const firstOnlyIds = await getFirstOnlyTaskIds();
+  const [firstOnlyIds, firstBonuses] = await Promise.all([getFirstOnlyTaskIds(), getFirstSubmitBonuses()]);
   const takenIds = await takenFirstOnlyTaskIds(taskRows.map((task) => task.id).filter((id) => firstOnlyIds.has(id)));
   const available = taskRows.filter((task) => {
     const mineHolds = submissionRows.some((item) => item.task_id === task.id && (item.status === "pending" || item.status === "approved"));
@@ -94,6 +95,7 @@ export default async function HomePage() {
           timeZone={settings.timezone}
           firstOnlyIds={firstOnlyIds}
           takenIds={takenIds}
+          firstBonuses={firstBonuses}
           emptyTitle="مفيش مهام متاحة دلوقتي"
           emptyBody="لما الأدمن ينزل مهمة، هتظهر هنا."
         />

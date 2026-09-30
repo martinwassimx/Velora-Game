@@ -19,6 +19,7 @@ export const STATUS_LABEL: Record<string, string> = {
   available: "متاحة",
   expired: "الميعاد خلّص",
   retry: "تقدر تبعتها تاني",
+  taken: "اتاخدت",
 };
 
 export const CONDITION_LABEL: Record<string, string> = {

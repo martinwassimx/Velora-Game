@@ -4,6 +4,7 @@ import { TaskForm } from "@/components/task-form";
 import { Alert, PageHeader } from "@/components/ui";
 import { deleteTask, duplicateTask } from "@/lib/actions/admin";
 import { requireAdmin } from "@/lib/auth";
+import { getFirstOnlyTaskIds } from "@/lib/first-only";
 import { FALLBACK_REWARDS } from "@/lib/constants";
 import { toLocalInput } from "@/lib/format";
 import type { PublicConfig, Task } from "@/lib/types";
@@ -28,6 +29,7 @@ export default async function EditTaskPage({
   const current = task as Task;
   const settings = config as PublicConfig | null;
   const timeZone = settings?.timezone ?? "Africa/Cairo";
+  const firstOnlyIds = await getFirstOnlyTaskIds();
 
   return (
     <div className="space-y-4">
@@ -50,6 +52,7 @@ export default async function EditTaskPage({
         assignedIds={(assignments ?? []).map((item) => item.user_id)}
         defaults={{ ...FALLBACK_REWARDS, ...(settings?.difficulty_defaults ?? {}) }}
         deadlineValue={toLocalInput(current.deadline, timeZone)}
+        firstOnly={firstOnlyIds.has(current.id)}
       />
     </div>
   );

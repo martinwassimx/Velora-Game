@@ -3,6 +3,7 @@ import { TaskList } from "@/components/task-list";
 import { BrandMark, Stat, XpBar } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { formatNumber } from "@/lib/format";
+import { getFirstOnlyTaskIds, takenFirstOnlyTaskIds } from "@/lib/first-only";
 import { getRewardShop } from "@/lib/rewards";
 import { describeTask } from "@/lib/tasks";
 import type { LevelProgress, PublicConfig, Task } from "@/lib/types";
@@ -32,7 +33,12 @@ export default async function HomePage() {
   };
   const taskRows = (tasks ?? []) as Task[];
   const submissionRows = submissions ?? [];
-  const available = taskRows.filter((task) => describeTask(task, submissionRows).canSubmit);
+  const firstOnlyIds = await getFirstOnlyTaskIds();
+  const takenIds = await takenFirstOnlyTaskIds(taskRows.map((task) => task.id).filter((id) => firstOnlyIds.has(id)));
+  const available = taskRows.filter((task) => {
+    const mineHolds = submissionRows.some((item) => item.task_id === task.id && (item.status === "pending" || item.status === "approved"));
+    return describeTask(task, submissionRows, takenIds.has(task.id) && !mineHolds).canSubmit;
+  });
   const shop = await getRewardShop();
 
   return (
@@ -86,6 +92,8 @@ export default async function HomePage() {
           tasks={available}
           submissions={submissionRows}
           timeZone={settings.timezone}
+          firstOnlyIds={firstOnlyIds}
+          takenIds={takenIds}
           emptyTitle="مفيش مهام متاحة دلوقتي"
           emptyBody="لما الأدمن ينزل مهمة، هتظهر هنا."
         />

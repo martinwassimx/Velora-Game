@@ -6,7 +6,8 @@ import { requireUser } from "@/lib/auth";
 import { DIFFICULTY_LABEL, STATUS_LABEL } from "@/lib/constants";
 import { formatDate, formatNumber } from "@/lib/format";
 import { signedPhoto } from "@/lib/media";
-import { describeTask } from "@/lib/tasks";
+import { getFirstOnlyTaskIds, taskClaimedBySomeoneElse } from "@/lib/first-only";
+import { describeTask, firstSubmitterCoins } from "@/lib/tasks";
 import type { PublicConfig, Submission, Task } from "@/lib/types";
 
 export default async function TaskPage({ params }: { params: Promise<{ id: string }> }) {
@@ -21,7 +22,10 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
 
   const current = task as Task;
   const rows = (submissions ?? []) as Submission[];
-  const info = describeTask(current, rows);
+  const firstOnlyIds = await getFirstOnlyTaskIds();
+  const firstOnly = firstOnlyIds.has(current.id);
+  const claimed = firstOnly ? await taskClaimedBySomeoneElse(current.id, profile.id) : false;
+  const info = describeTask(current, rows, claimed);
   const settings = config as PublicConfig | null;
   const timeZone = settings?.timezone ?? "Africa/Cairo";
   const photos = await Promise.all(rows.map(async (row) => ({ id: row.id, url: await signedPhoto(supabase, row.photo_url) })));
@@ -36,7 +40,7 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
         <div className="flex flex-wrap gap-2">
           <span className="chip">{DIFFICULTY_LABEL[current.difficulty]}</span>
           <span className="chip">⚡ {formatNumber(current.xp_reward)} XP</span>
-          <span className="chip">🪙 {formatNumber(current.coin_reward)}</span>
+          <span className="chip">🪙 {formatNumber(current.coin_reward)} · أول واحد {formatNumber(firstSubmitterCoins(current.coin_reward))}</span>
           <span className="chip">{STATUS_LABEL[info.state] ?? "متاحة"}</span>
         </div>
         <h1 className="mt-3 text-3xl font-black">{current.title}</h1>
@@ -50,6 +54,8 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
         <p className="mt-4 text-sm text-slate-300">
           الميعاد: {current.deadline ? formatDate(current.deadline, timeZone) : "مفيش ديدلاين"} · اتعملت {formatDate(current.created_at, timeZone)}
         </p>
+        <p className="mt-2 text-sm text-amber-200">أول واحد يبعت المهمة ياخد ضعف الكوينز. الباقي ياخدوا العدد العادي.</p>
+        {firstOnly ? <p className="mt-2 text-sm text-amber-200">المهمة دي لأول واحد بس. لما حد يبعتها، تقفل على الباقي.</p> : null}
         {current.requires_photo ? <p className="mt-2 text-sm text-amber-200">المهمة دي محتاجة صورة.</p> : null}
       </section>
 
@@ -63,7 +69,9 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
               ? "المهمة اتقبلت ✅"
               : info.state === "rejected"
                 ? "المهمة اترفضت ومش مسموح تبعتها تاني."
-                : info.state === "expired"
+                : info.state === "taken"
+              ? "المهمة دي لأول واحد بس، وحد سبقك."
+            : info.state === "expired"
                   ? "ميعاد المهمة خلّص."
                   : "المهمة مش متاحة دلوقتي."}
         </Alert>

@@ -1334,6 +1334,7 @@ declare
   v_updated uuid;
   v_reward jsonb;
   v_reason text;
+  v_coins integer;
 begin
   perform public.assert_admin();
 
@@ -1371,13 +1372,23 @@ begin
       raise exception 'الطلب ده اتراجع قبل كده';
     end if;
 
-    v_reward := public.grant_rewards(v_sub.user_id, v_task.xp_reward, v_task.coin_reward, true);
+    if not exists (
+      select 1 from public.task_submissions older
+      where older.task_id = v_sub.task_id
+        and older.created_at < v_sub.created_at
+    ) then
+      v_coins := least(v_task.coin_reward * 2, 1000000);
+    else
+      v_coins := v_task.coin_reward;
+    end if;
+
+    v_reward := public.grant_rewards(v_sub.user_id, v_task.xp_reward, v_coins, true);
 
     insert into public.notifications (user_id, title, body, type)
     values (
       v_sub.user_id,
       '✅ المهمة اتقبلت',
-      'اتقبلت «' || v_task.title || '» وخدت ' || v_task.xp_reward || ' XP و ' || v_task.coin_reward || ' كوين.',
+      'اتقبلت «' || v_task.title || '» وخدت ' || v_task.xp_reward || ' XP و ' || v_coins || ' كوين.',
       'submission_approved'
     );
 

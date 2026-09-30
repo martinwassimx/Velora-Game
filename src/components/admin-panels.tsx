@@ -12,6 +12,8 @@ import {
   setUsername,
 } from "@/lib/actions/admin";
 import { CONDITION_LABEL, DIFFICULTIES } from "@/lib/constants";
+import { formatNumber } from "@/lib/format";
+import { firstSubmitterCoins } from "@/lib/tasks";
 import { Alert } from "@/components/ui";
 import type { Achievement, PublicConfig } from "@/lib/types";
 
@@ -22,6 +24,9 @@ export function ReviewCard({
   note,
   imageUrl,
   createdAt,
+  xp,
+  coins,
+  firstSubmit = false,
 }: {
   id: string;
   username: string;
@@ -29,6 +34,9 @@ export function ReviewCard({
   note: string | null;
   imageUrl: string | null;
   createdAt: string;
+  xp: number;
+  coins: number;
+  firstSubmit?: boolean;
 }) {
   const [state, action, pending] = useActionState(reviewSubmission, null);
   const [rejecting, setRejecting] = useState(false);
@@ -42,6 +50,10 @@ export function ReviewCard({
           <p className="text-sm text-slate-300">
             {username} · {createdAt}
           </p>
+          <p className="text-sm text-amber-200">
+            المكافأة: {formatNumber(xp)} XP و {formatNumber(firstSubmit ? firstSubmitterCoins(coins) : coins)} كوين
+          </p>
+          {firstSubmit ? <p className="text-sm font-bold text-amber-200">أول تسليم · هيخد ضعف الكوينز</p> : null}
         </div>
       </div>
       {note ? <p className="rounded-2xl bg-white/5 p-3 text-sm leading-7">{note}</p> : null}
@@ -62,18 +74,29 @@ export function ReviewCard({
           </div>
         </form>
       ) : (
-        <div className="flex flex-wrap gap-2">
-          <form action={action}>
-            <input type="hidden" name="id" value={id} />
-            <input type="hidden" name="decision" value="approve" />
+        <form action={action} className="space-y-3">
+          <input type="hidden" name="id" value={id} />
+          <input type="hidden" name="decision" value="approve" />
+          <div className="grid grid-cols-2 gap-2">
+            <label className="text-sm font-bold">
+              بونص XP
+              <input className="field mt-1" name="bonus_xp" type="number" min={0} max={1000000} step={1} placeholder="0" />
+            </label>
+            <label className="text-sm font-bold">
+              بونص كوينز
+              <input className="field mt-1" name="bonus_coins" type="number" min={0} max={1000000} step={1} placeholder="0" />
+            </label>
+          </div>
+          <p className="text-sm text-slate-300">لو الإجابة حلوة، اكتب بونص. سيبها فاضية لو مش عايز.</p>
+          <div className="flex flex-wrap gap-2">
             <button className="btn btn-ok" disabled={pending}>
               ✅ قبول
             </button>
-          </form>
-          <button type="button" className="btn btn-danger" onClick={() => setRejecting(true)}>
-            ❌ رفض
-          </button>
-        </div>
+            <button type="button" className="btn btn-danger" onClick={() => setRejecting(true)}>
+              ❌ رفض
+            </button>
+          </div>
+        </form>
       )}
     </article>
   );

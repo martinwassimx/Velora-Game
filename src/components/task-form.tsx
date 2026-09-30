@@ -12,12 +12,14 @@ export function TaskForm({
   assignedIds,
   defaults,
   deadlineValue,
+  firstOnly = false,
 }: {
   task?: Task | null;
   users: { id: string; username: string }[];
   assignedIds: string[];
   defaults: Record<string, { xp: number; coins: number }>;
   deadlineValue: string;
+  firstOnly?: boolean;
 }) {
   const [state, action, pending] = useActionState(saveTask, null);
   const initialDifficulty = task?.difficulty ?? "medium";
@@ -108,6 +110,10 @@ export function TaskForm({
         <label className="flex items-center gap-2">
           <input type="checkbox" name="is_active" defaultChecked={task?.is_active ?? true} />
           المهمة شغالة
+        </label>
+        <label className="flex items-center gap-2">
+          <input type="checkbox" name="first_only" defaultChecked={firstOnly} />
+          لأول واحد بس
         </label>
       </div>
       {assignTo === "specific" ? (

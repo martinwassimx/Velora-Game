@@ -7,11 +7,22 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { siteUrl } from "@/lib/site";
 import { arabicError } from "@/lib/errors";
 import { zonedInputToIso } from "@/lib/format";
+import { getFirstOnlyTaskIds, setTaskFirstOnly } from "@/lib/first-only";
+import { firstSubmitterCoins } from "@/lib/tasks";
 import type { ActionState } from "@/lib/types";
 
 function refreshAdmin() {
   revalidatePath("/admin", "layout");
   revalidatePath("/", "layout");
+}
+
+function readBonus(value: FormDataEntryValue | null) {
+  const raw = String(value ?? "").trim();
+  if (!raw) return 0;
+  if (!/^\d+$/.test(raw)) return null;
+  const amount = Number(raw);
+  if (!Number.isSafeInteger(amount) || amount > 1000000) return null;
+  return amount;
 }
 
 export async function saveTask(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -39,6 +50,7 @@ export async function saveTask(_prev: ActionState, formData: FormData): Promise<
     p_user_ids: assignees,
   });
   if (error) return { error: arabicError(error.message) };
+  await setTaskFirstOnly(String(data), formData.get("first_only") === "on");
 
   refreshAdmin();
   redirect(`/admin/tasks/${data}`);
@@ -49,6 +61,7 @@ export async function deleteTask(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   const { error } = await supabase.rpc("admin_delete_task", { p_id: id });
   if (error) redirect(`/admin/tasks/${id}?error=${encodeURIComponent(arabicError(error.message))}`);
+  await setTaskFirstOnly(id, false);
   refreshAdmin();
   redirect("/admin/tasks?ok=deleted");
 }
@@ -58,6 +71,8 @@ export async function duplicateTask(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   const { data, error } = await supabase.rpc("admin_duplicate_task", { p_id: id });
   if (error) redirect(`/admin/tasks/${id}?error=${encodeURIComponent(arabicError(error.message))}`);
+  const firstOnly = await getFirstOnlyTaskIds();
+  if (firstOnly.has(id)) await setTaskFirstOnly(String(data), true);
   refreshAdmin();
   redirect(`/admin/tasks/${data}`);
 }
@@ -67,10 +82,13 @@ export async function reviewSubmission(_prev: ActionState, formData: FormData): 
   const id = String(formData.get("id") ?? "");
   const approve = String(formData.get("decision") ?? "") === "approve";
   const reason = String(formData.get("reason") ?? "").trim();
+  const bonusXp = approve ? readBonus(formData.get("bonus_xp")) : 0;
+  const bonusCoins = approve ? readBonus(formData.get("bonus_coins")) : 0;
+  if (bonusXp === null || bonusCoins === null) return { error: "البونص لازم يكون رقم من 0 لحد 1000000" };
   const admin = createAdminClient();
   const { data: submission } = await admin
     .from("task_submissions")
-    .select("id, user_id, status, reward_granted, tasks(title, xp_reward, coin_reward)")
+    .select("id, user_id, task_id, created_at, status, reward_granted, tasks(title, xp_reward, coin_reward)")
     .eq("id", id)
     .maybeSingle();
   const task = Array.isArray(submission?.tasks) ? submission.tasks[0] : submission?.tasks;
@@ -80,6 +98,20 @@ export async function reviewSubmission(_prev: ActionState, formData: FormData): 
   if (!approve && (reason.length < 2 || reason.length > 400)) {
     return { error: reason.length > 400 ? "سبب الرفض طويل أوي" : "اكتب سبب الرفض" };
   }
+
+  const { data: firstRow } = await admin
+    .from("task_submissions")
+    .select("id")
+    .eq("task_id", submission.task_id)
+    .order("created_at", { ascending: true })
+    .order("id", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  const firstSubmit = firstRow?.id === submission.id;
+  const baseCoins = firstSubmit ? firstSubmitterCoins(task.coin_reward) : task.coin_reward;
+  const xp = task.xp_reward + bonusXp;
+  const coins = baseCoins + bonusCoins;
+  if (xp > 1000000 || coins > 1000000) return { error: "البونص كبير أوي" };
 
   const reviewedAt = new Date().toISOString();
   const { data: updated } = await admin
@@ -101,8 +133,8 @@ export async function reviewSubmission(_prev: ActionState, formData: FormData): 
   if (approve) {
     const { error: rewardError } = await admin.rpc("grant_rewards", {
       p_user: submission.user_id,
-      p_xp: task.xp_reward,
-      p_coins: task.coin_reward,
+      p_xp: xp,
+      p_coins: coins,
       p_increment_completed: true,
     });
     if (rewardError) {
@@ -118,7 +150,7 @@ export async function reviewSubmission(_prev: ActionState, formData: FormData): 
     user_id: submission.user_id,
     title: approve ? "✅ المهمة اتقبلت" : "❌ المهمة اترفضت",
     body: approve
-      ? `اتقبلت «${task.title}» وخدت ${task.xp_reward} XP و ${task.coin_reward} كوين.`
+      ? `اتقبلت «${task.title}» وخدت ${xp} XP و ${coins} كوين.${firstSubmit && baseCoins > task.coin_reward ? " أول واحد بعت المهمة، فالكوينز اتضاعفت." : ""}${bonusXp > 0 || bonusCoins > 0 ? ` وبونص ${bonusXp} XP و ${bonusCoins} كوين عشان الإجابة كانت حلوة.` : ""}`
       : `اترفضت «${task.title}». السبب: ${reason}`,
     type: approve ? "submission_approved" : "submission_rejected",
   });
@@ -129,13 +161,21 @@ export async function reviewSubmission(_prev: ActionState, formData: FormData): 
     target_id: id,
     description: `${approve ? "قبول" : "رفض"} مهمة: ${task.title}`,
     metadata: approve
-      ? { user_id: submission.user_id, xp: task.xp_reward, coins: task.coin_reward }
+      ? { user_id: submission.user_id, xp, coins, bonus_xp: bonusXp, bonus_coins: bonusCoins, first_submit: firstSubmit }
       : { user_id: submission.user_id, reason },
   });
 
   refreshAdmin();
   revalidatePath("/admin/submissions");
-  return { ok: approve ? "اتقبلت المهمة واتكافأ اللاعب" : "اترفضت المهمة" };
+  return {
+    ok: approve
+      ? bonusXp > 0 || bonusCoins > 0
+        ? `اتقبلت المهمة. اللاعب خد ${xp} XP و ${coins} كوين، منهم بونص ${bonusXp} XP و ${bonusCoins} كوين.`
+        : firstSubmit && baseCoins > task.coin_reward
+          ? "اتقبلت المهمة. أول تسليم، فالكوينز اتضاعفت."
+          : "اتقبلت المهمة واتكافأ اللاعب"
+      : "اترفضت المهمة",
+  };
 }
 
 export async function adjustXp(_prev: ActionState, formData: FormData): Promise<ActionState> {

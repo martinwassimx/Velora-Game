@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { arabicError } from "@/lib/errors";
+import { getFirstOnlyTaskIds, taskClaimedBySomeoneElse } from "@/lib/first-only";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { ActionState } from "@/lib/types";
 
 const PHOTO_TYPES: Record<string, string> = {
@@ -26,6 +28,10 @@ export async function submitTask(_prev: ActionState, formData: FormData): Promis
   const taskId = String(formData.get("task_id") ?? "");
   const note = String(formData.get("note") ?? "");
   const file = formData.get("photo");
+  const firstOnly = await getFirstOnlyTaskIds();
+  if (firstOnly.has(taskId) && (await taskClaimedBySomeoneElse(taskId, user.id))) {
+    return { error: "المهمة دي لأول واحد بس، وحد سبقك." };
+  }
   let path: string | null = null;
 
   if (file instanceof File && file.size > 0) {
@@ -41,7 +47,7 @@ export async function submitTask(_prev: ActionState, formData: FormData): Promis
     if (uploadError) return { error: "مقدرناش نرفع الصورة، جرّب تاني" };
   }
 
-  const { error } = await supabase.rpc("submit_task", {
+  const { data: submissionId, error } = await supabase.rpc("submit_task", {
     p_task_id: taskId,
     p_photo_path: path,
     p_note: note,
@@ -50,6 +56,24 @@ export async function submitTask(_prev: ActionState, formData: FormData): Promis
   if (error) {
     if (path) await supabase.storage.from("task-submissions").remove([path]);
     return { error: arabicError(error.message) };
+  }
+
+  if (firstOnly.has(taskId) && submissionId) {
+    const admin = createAdminClient();
+    const { data: holders } = await admin
+      .from("task_submissions")
+      .select("id, user_id")
+      .eq("task_id", taskId)
+      .in("status", ["pending", "approved"])
+      .order("created_at", { ascending: true })
+      .order("id", { ascending: true })
+      .limit(1);
+    const holder = holders?.[0];
+    if (holder && holder.id !== submissionId && holder.user_id !== user.id) {
+      await admin.from("task_submissions").delete().eq("id", submissionId);
+      if (path) await supabase.storage.from("task-submissions").remove([path]);
+      return { error: "المهمة دي لأول واحد بس، وحد سبقك." };
+    }
   }
 
   revalidatePath("/");

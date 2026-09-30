@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Alert, PageHeader } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth";
+import { getFirstOnlyTaskIds } from "@/lib/first-only";
 import { DIFFICULTY_LABEL } from "@/lib/constants";
 import { formatDate, formatNumber } from "@/lib/format";
 import type { PublicConfig, Task } from "@/lib/types";
@@ -17,6 +18,7 @@ export default async function AdminTasksPage({
     supabase.rpc("get_public_config"),
   ]);
   const tasks = (data ?? []) as Task[];
+  const firstOnlyIds = await getFirstOnlyTaskIds();
   const timeZone = (config as PublicConfig | null)?.timezone ?? "Africa/Cairo";
 
   return (
@@ -35,6 +37,7 @@ export default async function AdminTasksPage({
               <span className="chip">{formatNumber(task.xp_reward)} XP</span>
               <span className="chip">{formatNumber(task.coin_reward)} كوين</span>
               <span className="chip">{task.assign_to === "everyone" ? "لكل اللاعبين" : "لاعبين محددين"}</span>
+              {firstOnlyIds.has(task.id) ? <span className="chip">🏁 لأول واحد بس</span> : null}
               <span className="chip">{formatDate(task.created_at, timeZone)}</span>
             </div>
           </Link>

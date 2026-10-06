@@ -7,7 +7,7 @@
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8?style=for-the-badge&logo=tailwindcss)
 ![Supabase](https://img.shields.io/badge/Supabase-Auth%20%2B%20Postgres-3ecf8e?style=for-the-badge&logo=supabase)
 ![Vercel](https://img.shields.io/badge/Vercel-Ready-black?style=for-the-badge&logo=vercel)
-
+  
 > A daily mission game where players finish tasks, earn XP and coins, keep a streak, and climb a leaderboard. Admins review every submission. A new mission is published automatically every **24 hours**.
 
 ---

@@ -6,27 +6,27 @@ import { logout } from "@/lib/actions/auth";
 import { BrandMark } from "@/components/ui";
 
 const links = [
-  { href: "/admin", label: "لوحة التحكم" },
-  { href: "/admin/users", label: "المستخدمين" },
-  { href: "/admin/tasks", label: "المهام" },
-  { href: "/admin/submissions", label: "طلبات المراجعة" },
-  { href: "/admin/notifications", label: "الإشعارات" },
-  { href: "/admin/achievements", label: "الإنجازات" },
-  { href: "/admin/rewards", label: "المكافآت" },
-  { href: "/admin/settings", label: "الإعدادات" },
-  { href: "/admin/logs", label: "سجل العمليات" },
+  { href: "/admin", label: "Dashboard" },
+  { href: "/admin/users", label: "Users" },
+  { href: "/admin/tasks", label: "Missions" },
+  { href: "/admin/submissions", label: "Review queue" },
+  { href: "/admin/notifications", label: "Notifications" },
+  { href: "/admin/achievements", label: "Achievements" },
+  { href: "/admin/rewards", label: "Rewards" },
+  { href: "/admin/settings", label: "Settings" },
+  { href: "/admin/logs", label: "Activity log" },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   return (
-    <div className="min-h-dvh md:ps-72">
-      <aside className="fixed inset-y-0 start-0 z-30 hidden w-72 flex-col border-e border-amber-200/10 bg-[#140e08]/90 p-4 md:flex">
+    <div className="min-h-dvh md:ps-64">
+      <aside className="fixed inset-y-0 start-0 z-30 hidden w-64 flex-col border-e border-[#2a2a2e] bg-[#0c0c0e] p-4 md:flex">
         <div className="flex items-center gap-3 px-2 py-3">
           <BrandMark size="sm" />
           <div>
-            <p className="text-xs font-bold text-amber-200">أدمن</p>
-            <p className="text-xl font-black leading-6">لوحة التحكم</p>
+            <p className="text-xs font-bold text-[#e4e4e7]">Admin</p>
+            <p className="text-xl font-black leading-6">Dashboard</p>
           </div>
         </div>
         <nav className="space-y-1">
@@ -41,10 +41,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </nav>
         <div className="mt-auto space-y-2">
           <Link href="/" className="btn btn-ghost w-full">
-            رجوع للّعبة
+            Back to the game
           </Link>
           <form action={logout}>
-            <button className="btn btn-ghost w-full">خروج</button>
+            <button className="btn btn-ghost w-full">Sign out</button>
           </form>
         </div>
       </aside>
@@ -56,7 +56,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             </Link>
           ))}
           <Link href="/" className="chip shrink-0">
-            اللعبة
+            Game
           </Link>
         </div>
         {children}

@@ -1,23 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import "@fontsource/cairo/arabic-400.css";
-import "@fontsource/cairo/arabic-700.css";
-import "@fontsource/cairo/arabic-800.css";
-import "@fontsource/cairo/latin-400.css";
-import "@fontsource/cairo/latin-700.css";
-import "@fontsource/cairo/latin-800.css";
 import { InstallPrompt } from "@/components/install-prompt";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "مهام مارو جيصه",
-    template: "%s | مهام مارو جيصه",
+    default: "Velora",
+    template: "%s | Velora",
   },
-  description: "لعبة المهام اليومية. خلّص المهام، اجمع XP وكوينز، وحافظ على الستريك.",
-  applicationName: "مارو جيصه",
+  description: "Velora is a daily mission game. Finish missions, earn XP and coins, and climb the ranks.",
+  applicationName: "Velora",
   appleWebApp: {
     capable: true,
-    title: "مارو جيصه",
+    title: "Velora",
     statusBarStyle: "black",
   },
   icons: {
@@ -32,7 +26,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export const viewport: Viewport = {
-  themeColor: "#100c08",
+  themeColor: "#09090b",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -40,7 +34,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="en" dir="ltr">
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>

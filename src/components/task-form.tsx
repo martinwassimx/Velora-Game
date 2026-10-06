@@ -43,20 +43,20 @@ export function TaskForm({
       {task ? <input type="hidden" name="id" value={task.id} /> : null}
       {state?.error ? <Alert tone="error">{state.error}</Alert> : null}
       <label className="block text-sm font-bold">
-        عنوان المهمة
+        Mission title
         <input className="field mt-1" name="title" defaultValue={task?.title ?? ""} required minLength={2} maxLength={120} />
       </label>
       <label className="block text-sm font-bold">
-        الوصف
+        Description
         <textarea className="field mt-1 min-h-24" name="description" defaultValue={task?.description ?? ""} />
       </label>
       <label className="block text-sm font-bold">
-        التعليمات
+        Instructions
         <textarea className="field mt-1 min-h-24" name="instructions" defaultValue={task?.instructions ?? ""} />
       </label>
       <div className="grid gap-3 md:grid-cols-2">
         <label className="text-sm font-bold">
-          الصعوبة
+          Difficulty
           <select
             className="field mt-1"
             name="difficulty"
@@ -80,15 +80,15 @@ export function TaskForm({
           </select>
         </label>
         <label className="text-sm font-bold">
-          آخر ميعاد
+          Deadline
           <input className="field mt-1" type="datetime-local" name="deadline" defaultValue={deadlineValue} />
         </label>
         <label className="text-sm font-bold">
-          مكافأة XP
+          XP reward
           <input className="field mt-1" type="number" min={0} name="xp_reward" value={xp} onChange={(event) => setXp(Number(event.target.value))} />
         </label>
         <label className="text-sm font-bold">
-          مكافأة الكوينز
+          Coin reward
           <input className="field mt-1" type="number" min={0} name="coin_reward" value={coins} onChange={(event) => {
             const next = Number(event.target.value);
             setCoins(next);
@@ -96,7 +96,7 @@ export function TaskForm({
           }} />
         </label>
         <label className="text-sm font-bold">
-          بونص كوينز أول واحد
+          First-player coin bonus
           <input
             className="field mt-1"
             type="number"
@@ -109,45 +109,45 @@ export function TaskForm({
               setFirstBonus(Number(event.target.value));
             }}
           />
-          <span className="mt-1 block font-normal text-slate-300">
+          <span className="mt-1 block font-normal text-[#a1a1aa]">
             {firstBonus > 0
-              ? `أول واحد ياخد ${coins + firstBonus} كوين. الباقي ياخدوا ${coins}.`
-              : "أول واحد هياخد نفس عدد الكوينز."}
+              ? `The first player earns ${coins + firstBonus} coins. Everyone else earns ${coins}.`
+              : "The first player earns the same number of coins."}
           </span>
         </label>
         <label className="text-sm font-bold">
-          أقصى عدد إكمال
+          Maximum completions
           <input className="field mt-1" type="number" min={1} max={100} name="max_submissions" defaultValue={task?.max_submissions ?? 1} />
         </label>
         <label className="text-sm font-bold">
-          التعيين
+          Assignment
           <select className="field mt-1" name="assign_to" value={assignTo} onChange={(event) => setAssignTo(event.target.value as "everyone" | "specific")}>
-            <option value="everyone">كل اللاعبين</option>
-            <option value="specific">لاعبين محددين</option>
+            <option value="everyone">All players</option>
+            <option value="specific">Specific players</option>
           </select>
         </label>
       </div>
       <div className="flex flex-wrap gap-4 text-sm font-bold">
         <label className="flex items-center gap-2">
           <input type="checkbox" name="requires_photo" defaultChecked={task?.requires_photo ?? false} />
-          مطلوب صورة
+          Photo required
         </label>
         <label className="flex items-center gap-2">
           <input type="checkbox" name="allow_resubmission" defaultChecked={task?.allow_resubmission ?? false} />
-          السماح بإعادة الإرسال بعد الرفض
+          Allow resubmission after rejection
         </label>
         <label className="flex items-center gap-2">
           <input type="checkbox" name="is_active" defaultChecked={task?.is_active ?? true} />
-          المهمة شغالة
+          Mission is active
         </label>
         <label className="flex items-center gap-2">
           <input type="checkbox" name="first_only" defaultChecked={firstOnly} />
-          لأول واحد بس
+          First player only
         </label>
       </div>
       {assignTo === "specific" ? (
-        <div className="rounded-2xl border border-white/10 p-3">
-          <input className="field mb-3" placeholder="دوّر على لاعب" value={query} onChange={(event) => setQuery(event.target.value)} />
+        <div className="rounded-2xl border border-[#2a2a2e] p-3">
+          <input className="field mb-3" placeholder="Search for a player" value={query} onChange={(event) => setQuery(event.target.value)} />
           <div className="grid max-h-64 gap-2 overflow-auto sm:grid-cols-2">
             {visibleUsers.map((user) => (
               <label key={user.id} className="flex items-center gap-2 text-sm">
@@ -159,7 +159,7 @@ export function TaskForm({
         </div>
       ) : null}
       <button className="btn btn-primary" disabled={pending}>
-        {pending ? "جاري الحفظ..." : task ? "حفظ التعديل" : "إنشاء المهمة"}
+        {pending ? "Saving..." : task ? "Save changes" : "Create mission"}
       </button>
     </form>
   );

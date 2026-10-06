@@ -18,7 +18,7 @@ export default async function SettingsPage() {
 
   return (
     <div>
-      <PageHeader title="الإعدادات" subtitle="المستويات، مكافأة الدخول، والستريك. التغيير بيحصل على السيرفر." />
+      <PageHeader title="Settings" subtitle="Levels, the daily login reward, and streaks. Changes are saved on the server." />
       <SettingsForm config={config} />
     </div>
   );

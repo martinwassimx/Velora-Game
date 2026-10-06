@@ -26,8 +26,8 @@ export default async function LogsPage() {
 
   return (
     <div>
-      <PageHeader title="سجل العمليات" subtitle="كل إجراء مهم من الأدمن بيتسجل هنا." />
-      {rows.length === 0 ? <EmptyState title="السجل فاضي" body="أول إجراء هيتسجل هنا." /> : null}
+      <PageHeader title="Activity log" subtitle="Every important admin action is recorded here." />
+      {rows.length === 0 ? <EmptyState title="The log is empty" body="The first action will be recorded here." /> : null}
       <div className="grid gap-2">
         {rows.map((row) => {
           const admin = Array.isArray(row.admin) ? row.admin[0] : row.admin;
@@ -37,8 +37,8 @@ export default async function LogsPage() {
                 <h2 className="font-extrabold">{row.description}</h2>
                 <span className="chip">{row.action}</span>
               </div>
-              <p className="mt-1 text-sm text-slate-300">
-                {admin?.username ?? "أدمن"} · {formatDate(row.created_at, timeZone)}
+              <p className="mt-1 text-sm text-[#a1a1aa]">
+                {admin?.username ?? "Admin"} · {formatDate(row.created_at, timeZone)}
               </p>
             </article>
           );

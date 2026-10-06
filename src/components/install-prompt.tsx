@@ -7,7 +7,7 @@ type InstallChoice = {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
 
-const HIDE_KEY = "maro-install-hidden";
+const HIDE_KEY = "velora-install-hidden";
 
 function standalone() {
   const nav = navigator as Navigator & { standalone?: boolean };
@@ -82,25 +82,25 @@ export function InstallPrompt() {
     <div className="fixed inset-0 z-40 grid place-items-center bg-black/60 p-4">
       <section className="card w-full max-w-sm p-4 shadow-[0_16px_40px_rgba(0,0,0,0.45)]">
         <div className="flex items-center gap-3">
-          <img src="/icons/icon-192.png" alt="" className="h-14 w-14 rounded-2xl object-cover ring-2 ring-amber-300" />
+          <img src="/icons/icon-192.png" alt="" className="h-14 w-14 rounded-2xl object-cover ring-1 ring-[#3f3f46]" />
           <div>
-            <p className="font-black">نزّل اللعبة</p>
-            <p className="text-sm text-amber-100">حطّها على الشاشة الرئيسية وافتحها زي تطبيق.</p>
+            <p className="font-black">Install Velora</p>
+            <p className="text-sm text-[#d4d4d8]">Add it to your home screen and open it like an app.</p>
           </div>
         </div>
         {ios ? (
-          <ol className="mt-3 space-y-1 text-sm leading-7 text-slate-200">
-            <li>1. من سفاري اضغط زر المشاركة ⬆️</li>
-            <li>2. اختار «إضافة إلى الشاشة الرئيسية»</li>
-            <li>3. اضغط «إضافة»</li>
+          <ol className="mt-3 space-y-1 text-sm leading-7 text-[#d4d4d8]">
+            <li>1. In Safari, tap the Share button</li>
+            <li>2. Choose Add to Home Screen</li>
+            <li>3. Tap Add</li>
           </ol>
         ) : (
           <button className="btn btn-primary mt-3 w-full" onClick={installApp}>
-            تثبيت التطبيق
+            Install app
           </button>
         )}
         <button className="btn btn-ghost mt-2 w-full" onClick={hide}>
-          بعدين
+          Later
         </button>
       </section>
     </div>

@@ -49,9 +49,9 @@ export async function saveRewardVisibility(_prev: ActionState, formData: FormDat
   const comingSoon = formData.get("rewards_coming_soon") === "on";
   const error = await saveRewardSetting("rewards_coming_soon", comingSoon);
   if (error) return { error: arabicError(error) };
-  await logRewardChange(user.id, comingSoon ? "المكافآت بقت قريبًا" : "المكافآت ظهرت للاعبين");
+  await logRewardChange(user.id, comingSoon ? "Rewards are marked as coming soon" : "Rewards are now visible to players");
   refreshShop();
-  return { ok: comingSoon ? "اللاعبين هيشوفوا قريبًا." : "المكافآت ظهرت للاعبين." };
+  return { ok: comingSoon ? "Players will see Coming soon." : "Rewards are now visible to players." };
 }
 
 export async function addRedeemReward(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -59,28 +59,28 @@ export async function addRedeemReward(_prev: ActionState, formData: FormData): P
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const coins = Number(formData.get("coins"));
-  if (title.length < 2 || title.length > 80) return { error: "اسم المكافأة لازم يكون من حرفين لـ 80" };
-  if (description.length > 300) return { error: "الوصف طويل أوي" };
-  if (!Number.isInteger(coins) || coins < 1 || coins > 1000000) return { error: "عدد الكوينز لازم يكون رقم" };
+  if (title.length < 2 || title.length > 80) return { error: "The reward name must be 2 to 80 characters" };
+  if (description.length > 300) return { error: "That description is too long" };
+  if (!Number.isInteger(coins) || coins < 1 || coins > 1000000) return { error: "The coin amount must be a whole number" };
 
   const shop = await getRewardShop();
-  if (shop.rewards.length >= 50) return { error: "وصلت للحد. امسح مكافأة الأول" };
+  if (shop.rewards.length >= 50) return { error: "You've reached the limit. Delete a reward first" };
 
   const file = formData.get("photo");
   const id = crypto.randomUUID();
   let imagePath: string | null = null;
   if (file instanceof File && file.size > 0) {
-    if (file.size > 5 * 1024 * 1024) return { error: "الصورة لازم تكون أقل من 5 ميجا" };
+    if (file.size > 5 * 1024 * 1024) return { error: "The image must be under 5 MB" };
     const ext = PHOTO_TYPES[file.type];
-    if (!ext) return { error: "الصورة لازم تكون JPG أو PNG أو WEBP" };
+    if (!ext) return { error: "The image must be JPG, PNG, or WEBP" };
     const storage = await rewardStorage();
-    if (storage.error) return { error: "مقدرناش نجهز مكان الصور، جرّب تاني" };
+    if (storage.error) return { error: "We couldn't prepare image storage. Try again" };
     imagePath = `${id}.${ext}`;
     const uploaded = await storage.admin.storage.from("reward-images").upload(imagePath, new Uint8Array(await file.arrayBuffer()), {
       contentType: file.type,
       upsert: false,
     });
-    if (uploaded.error) return { error: "مقدرناش نرفع الصورة، جرّب تاني" };
+    if (uploaded.error) return { error: "We couldn't upload the image. Try again" };
   }
 
   const error = await saveRewardSetting("redeem_rewards", [
@@ -94,9 +94,9 @@ export async function addRedeemReward(_prev: ActionState, formData: FormData): P
     }
     return { error: arabicError(error) };
   }
-  await logRewardChange(user.id, `إضافة مكافأة: ${title}`);
+  await logRewardChange(user.id, `Added reward: ${title}`);
   refreshShop();
-  return { ok: "المكافأة اتضافت." };
+  return { ok: "The reward was added." };
 }
 
 export async function deleteRedeemReward(formData: FormData) {
@@ -113,7 +113,7 @@ export async function deleteRedeemReward(formData: FormData) {
     const admin = createAdminClient();
     await admin.storage.from("reward-images").remove([removed.image_path]);
   }
-  await logRewardChange(user.id, `مسح مكافأة: ${removed?.title ?? id}`);
+  await logRewardChange(user.id, `Deleted reward: ${removed?.title ?? id}`);
   refreshShop();
   redirect("/admin/rewards?ok=deleted");
 }

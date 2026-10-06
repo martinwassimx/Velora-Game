@@ -10,10 +10,10 @@ export default async function LoginPage({
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-2xl font-black">أهلاً بيك 👋</h2>
-        <p className="text-slate-300">سجّل دخول وكمل مهمة النهارده.</p>
+        <h2 className="text-2xl font-black">Welcome back</h2>
+        <p className="text-[#a1a1aa]">Sign in and take today's mission.</p>
       </div>
-      {params.error === "profile" ? <Alert tone="error">حسابك لسه بيتجهز. جرّب تاني بعد ثانية.</Alert> : null}
+      {params.error === "profile" ? <Alert tone="error">Your account is still being prepared. Try again in a moment.</Alert> : null}
       <LoginForm next={params.next} />
     </div>
   );

@@ -205,13 +205,13 @@ insert into public.daily_login_rewards (day_number, coins) values
   (7, 100);
 
 insert into public.achievements (slug, title, description, icon, condition_type, condition_value) values
-  ('first_task', 'أول مهمة', 'خلّصت أول مهمة ليك', '🏆', 'completed_tasks', 1),
-  ('streak_7', '7 أيام متواصل', 'وصلت لستريك 7 أيام', '🔥', 'streak', 7),
-  ('tasks_10', '10 مهام', 'خلّصت 10 مهام', '⚡', 'completed_tasks', 10),
-  ('tasks_50', '50 مهمة', 'خلّصت 50 مهمة', '💎', 'completed_tasks', 50),
-  ('level_10', 'Level 10', 'وصلت للمستوى 10', '👑', 'level', 10),
-  ('coins_500', 'جامع الكوينز', 'جمعت 500 كوين', '🪙', 'coins', 500),
-  ('streak_30', 'أسطورة الاستمرار', 'وصلت لستريك 30 يوم', '🌟', 'streak', 30);
+  ('first_task', 'First mission', 'Complete your first mission', '🏆', 'completed_tasks', 1),
+  ('streak_7', 'Seven-day streak', 'Reach a 7-day streak', '🔥', 'streak', 7),
+  ('tasks_10', 'Ten missions', 'Complete 10 missions', '⚡', 'completed_tasks', 10),
+  ('tasks_50', 'Fifty missions', 'Complete 50 missions', '💎', 'completed_tasks', 50),
+  ('level_10', 'Level 10', 'Reach level 10', '👑', 'level', 10),
+  ('coins_500', 'Coin collector', 'Earn 500 coins', '🪙', 'coins', 500),
+  ('streak_30', 'Streak legend', 'Reach a 30-day streak', '🌟', 'streak', 30);
 
 -- ---------------------------------------------------------------------------
 -- Helpers

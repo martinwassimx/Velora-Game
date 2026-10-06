@@ -10,7 +10,7 @@ function PendingButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
     <button className="btn btn-primary w-full" disabled={pending}>
-      {pending ? "استنى شوية..." : label}
+      {pending ? "Please wait..." : label}
     </button>
   );
 }
@@ -22,17 +22,17 @@ export function LoginForm({ next }: { next?: string }) {
       <input type="hidden" name="next" value={next ?? "/"} />
       {state?.error ? <Alert tone="error">{state.error}</Alert> : null}
       <label className="block text-sm font-bold">
-        الإيميل
+        Email
         <input className="field mt-1" name="email" type="email" autoComplete="email" required />
       </label>
       <label className="block text-sm font-bold">
-        الباسورد
+        Password
         <input className="field mt-1" name="password" type="password" autoComplete="current-password" required />
       </label>
-      <PendingButton label="دخول" />
-      <div className="flex justify-between text-sm text-amber-100">
-        <Link href="/register">اعمل حساب جديد</Link>
-        <Link href="/forgot-password">نسيت الباسورد؟</Link>
+      <PendingButton label="Sign in" />
+      <div className="flex justify-between text-sm text-[#d4d4d8]">
+        <Link href="/register">Create an account</Link>
+        <Link href="/forgot-password">Forgot password?</Link>
       </div>
     </form>
   );
@@ -45,24 +45,24 @@ export function RegisterForm() {
       {state?.error ? <Alert tone="error">{state.error}</Alert> : null}
       {state?.ok ? <Alert tone="ok">{state.ok}</Alert> : null}
       <label className="block text-sm font-bold">
-        اسم المستخدم
+        Username
         <input className="field mt-1" name="username" minLength={3} maxLength={24} required />
       </label>
       <label className="block text-sm font-bold">
-        الإيميل
+        Email
         <input className="field mt-1" name="email" type="email" autoComplete="email" required />
       </label>
       <label className="block text-sm font-bold">
-        الباسورد
+        Password
         <input className="field mt-1" name="password" type="password" autoComplete="new-password" minLength={8} required />
       </label>
       <label className="block text-sm font-bold">
-        تأكيد الباسورد
+        Confirm password
         <input className="field mt-1" name="confirm" type="password" autoComplete="new-password" minLength={8} required />
       </label>
-      <PendingButton label="إنشاء الحساب" />
-      <p className="text-sm text-slate-300">
-        عندك حساب؟ <Link href="/login" className="text-amber-200">سجّل دخول</Link>
+      <PendingButton label="Create account" />
+      <p className="text-sm text-[#a1a1aa]">
+        Already have an account? <Link href="/login" className="text-[#e4e4e7]">Sign in</Link>
       </p>
     </form>
   );
@@ -75,11 +75,11 @@ export function ForgotForm() {
       {state?.error ? <Alert tone="error">{state.error}</Alert> : null}
       {state?.ok ? <Alert tone="ok">{state.ok}</Alert> : null}
       <label className="block text-sm font-bold">
-        الإيميل
+        Email
         <input className="field mt-1" name="email" type="email" required />
       </label>
-      <PendingButton label="ابعت رابط التغيير" />
-      <Link href="/login" className="block text-sm text-amber-200">رجوع لتسجيل الدخول</Link>
+      <PendingButton label="Send reset link" />
+      <Link href="/login" className="block text-sm text-[#e4e4e7]">Back to sign in</Link>
     </form>
   );
 }
@@ -90,14 +90,14 @@ export function ResetForm() {
     <form action={action} className="space-y-3">
       {state?.error ? <Alert tone="error">{state.error}</Alert> : null}
       <label className="block text-sm font-bold">
-        الباسورد الجديد
+        New password
         <input className="field mt-1" name="password" type="password" minLength={8} required />
       </label>
       <label className="block text-sm font-bold">
-        تأكيد الباسورد
+        Confirm password
         <input className="field mt-1" name="confirm" type="password" minLength={8} required />
       </label>
-      <PendingButton label="حفظ الباسورد" />
+      <PendingButton label="Save password" />
     </form>
   );
 }

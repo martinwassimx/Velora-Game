@@ -6,7 +6,7 @@ import { supabaseEnv } from "./env";
 export function createClient() {
   const env = supabaseEnv();
   if (!env) {
-    throw new Error("اتصال Supabase مش متظبط");
+    throw new Error("Supabase isn't configured");
   }
   return createBrowserClient(env.url, env.anonKey);
 }

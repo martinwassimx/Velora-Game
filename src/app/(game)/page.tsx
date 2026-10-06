@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { Icon } from "@/components/icons";
 import { TaskList } from "@/components/task-list";
-import { BrandMark, Stat, XpBar } from "@/components/ui";
+import { Stat, XpBar } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
+import { publishDueMission } from "@/lib/daily-missions";
 import { formatNumber } from "@/lib/format";
 import { getFirstSubmitBonuses } from "@/lib/first-bonus";
 import { getFirstOnlyTaskIds, takenFirstOnlyTaskIds } from "@/lib/first-only";
@@ -10,6 +12,7 @@ import { describeTask } from "@/lib/tasks";
 import type { LevelProgress, PublicConfig, Task } from "@/lib/types";
 
 export default async function HomePage() {
+  await publishDueMission();
   const { supabase, profile } = await requireUser();
   const [{ data: progress }, { data: config }, { data: tasks }, { data: submissions }] = await Promise.all([
     supabase.rpc("level_for_xp", { p_xp: profile.xp }),
@@ -44,37 +47,35 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-5">
-      <section className="card flex flex-col items-center p-5 text-center">
-        <BrandMark size="lg" />
-        <p className="mt-4 text-sm font-bold text-amber-200">أهلاً يا {profile.username} 👋</p>
-        <h1 className="mt-1 text-3xl font-black">جاهز لمهمة النهارده؟ 🎮</h1>
-        <div className="mt-5 w-full">
+      <section>
+        <p className="text-sm text-[#a1a1aa]">{profile.username}</p>
+        <h1 className="mt-1 text-3xl font-extrabold tracking-tight">Today</h1>
+        <div className="mt-4">
           <XpBar level={level.level} xp={level.xp} floorXp={level.floor_xp} nextXp={level.next_xp} />
         </div>
       </section>
 
       <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat icon="⭐" label="المستوى" value={formatNumber(profile.level)} />
-        <Stat icon="⚡" label="الـ XP" value={formatNumber(profile.xp)} />
-        <Stat icon="🪙" label="الكوينز" value={formatNumber(profile.coins)} />
-        <Stat icon="🔥" label="الستريك" value={`${formatNumber(profile.current_streak)} أيام`} />
-        <Stat icon="✅" label="مهام مكتملة" value={formatNumber(profile.total_completed_tasks)} />
+        <Stat icon={<Icon name="star" />} label="Level" value={formatNumber(profile.level)} />
+        <Stat icon={<Icon name="zap" />} label="XP" value={formatNumber(profile.xp)} />
+        <Stat icon={<Icon name="coin" />} label="Coins" value={formatNumber(profile.coins)} />
+        <Stat icon={<Icon name="flame" />} label="Streak" value={`${formatNumber(profile.current_streak)} ${profile.current_streak === 1 ? "day" : "days"}`} />
       </section>
 
       <Link href="/rewards" className="card block p-4">
-        <h2 className="font-extrabold">استبدال الكوينز 🎁</h2>
-        <p className="mt-1 text-sm text-slate-300">
-          {shop.comingSoon ? "قريبًا. الزرار لسه مقفول." : "شوف المكافآت اللي تقدر تاخدها بالكوينز."}
+        <h2 className="font-extrabold">Rewards</h2>
+        <p className="mt-1 text-sm text-[#a1a1aa]">
+          {shop.comingSoon ? "Coming soon. Redemption is still closed." : "See the rewards you can claim with your coins."}
         </p>
       </Link>
 
       {settings.daily_rewards.length > 0 ? (
         <section className="card p-4">
-          <h2 className="mb-3 font-extrabold">مكافأة الدخول اليومية 🎁</h2>
+          <h2 className="mb-3 font-extrabold">Daily login</h2>
           <div className="grid grid-cols-4 gap-2 md:grid-cols-7">
             {settings.daily_rewards.map((reward) => (
-              <div key={reward.day} className={`rounded-2xl border px-2 py-3 text-center ${reward.day === Math.min(profile.current_streak || 1, 7) ? "border-amber-300 bg-amber-300/10" : "border-white/10"}`}>
-                <p className="text-xs text-slate-300">يوم {reward.day}</p>
+              <div key={reward.day} className={`rounded-2xl border px-2 py-3 text-center ${reward.day === Math.min(profile.current_streak || 1, 7) ? "border-[#fafafa] bg-[#1c1c1f]" : "border-[#2a2a2e]"}`}>
+                <p className="text-xs text-[#a1a1aa]">Day {reward.day}</p>
                 <p className="font-extrabold">{formatNumber(reward.coins)}</p>
               </div>
             ))}
@@ -84,9 +85,9 @@ export default async function HomePage() {
 
       <section>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-xl font-extrabold">مهمة النهارده</h2>
-          <Link href="/tasks" className="text-sm font-bold text-amber-200">
-            كل المهام
+          <h2 className="text-xl font-extrabold">Today's mission</h2>
+          <Link href="/tasks" className="text-sm font-bold text-[#e4e4e7]">
+            All missions
           </Link>
         </div>
         <TaskList
@@ -96,8 +97,8 @@ export default async function HomePage() {
           firstOnlyIds={firstOnlyIds}
           takenIds={takenIds}
           firstBonuses={firstBonuses}
-          emptyTitle="مفيش مهام متاحة دلوقتي"
-          emptyBody="لما الأدمن ينزل مهمة، هتظهر هنا."
+          emptyTitle="No missions available right now"
+          emptyBody="When an admin publishes a mission, it will show up here."
         />
       </section>
     </div>

@@ -14,6 +14,7 @@ import {
 import { CONDITION_LABEL, DIFFICULTIES } from "@/lib/constants";
 import { formatNumber } from "@/lib/format";
 import { firstSubmitterCoins } from "@/lib/tasks";
+import { Icon } from "@/components/icons";
 import { Alert } from "@/components/ui";
 import type { Achievement, PublicConfig } from "@/lib/types";
 
@@ -49,31 +50,31 @@ export function ReviewCard({
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <h2 className="text-lg font-extrabold">{task}</h2>
-          <p className="text-sm text-slate-300">
+          <p className="text-sm text-[#a1a1aa]">
             {username} · {createdAt}
           </p>
-          <p className="text-sm text-amber-200">
-            المكافأة: {formatNumber(xp)} XP و {formatNumber(firstSubmit ? firstSubmitterCoins(coins, firstCoinBonus) : coins)} كوين
+          <p className="text-sm text-[#e4e4e7]">
+            Reward: {formatNumber(xp)} XP and {formatNumber(firstSubmit ? firstSubmitterCoins(coins, firstCoinBonus) : coins)} coins
           </p>
           {firstSubmit && firstCoinBonus > 0 ? (
-            <p className="text-sm font-bold text-amber-200">أول تسليم · هيخد {formatNumber(firstCoinBonus)} كوين زيادة</p>
+            <p className="text-sm font-bold text-[#e4e4e7]">First submission · they earn {formatNumber(firstCoinBonus)} extra coins</p>
           ) : null}
         </div>
       </div>
-      {note ? <p className="rounded-2xl bg-white/5 p-3 text-sm leading-7">{note}</p> : null}
-      {imageUrl ? <img src={imageUrl} alt="صورة المهمة" className="max-h-80 w-full rounded-2xl object-contain bg-black/30" /> : <p className="text-sm text-slate-400">مفيش صورة</p>}
+      {note ? <p className="rounded-2xl bg-[#18181b] p-3 text-sm leading-7">{note}</p> : null}
+      {imageUrl ? <img src={imageUrl} alt="Mission photo" className="max-h-80 w-full rounded-2xl object-contain bg-black/30" /> : <p className="text-sm text-[#a1a1aa]">No photo</p>}
       {state?.error ? <Alert tone="error">{state.error}</Alert> : null}
       {rejecting ? (
         <form action={action} className="space-y-2">
           <input type="hidden" name="id" value={id} />
           <input type="hidden" name="decision" value="reject" />
-          <textarea className="field min-h-24" name="reason" placeholder="سبب الرفض" required minLength={2} />
+          <textarea className="field min-h-24" name="reason" placeholder="Rejection reason" required minLength={2} />
           <div className="flex gap-2">
             <button className="btn btn-danger" disabled={pending}>
-              تأكيد الرفض
+              Confirm rejection
             </button>
             <button type="button" className="btn btn-ghost" onClick={() => setRejecting(false)}>
-              إلغاء
+              Cancel
             </button>
           </div>
         </form>
@@ -83,21 +84,21 @@ export function ReviewCard({
           <input type="hidden" name="decision" value="approve" />
           <div className="grid grid-cols-2 gap-2">
             <label className="text-sm font-bold">
-              بونص XP
+              XP bonus
               <input className="field mt-1" name="bonus_xp" type="number" min={0} max={1000000} step={1} placeholder="0" />
             </label>
             <label className="text-sm font-bold">
-              بونص كوينز
+              Coin bonus
               <input className="field mt-1" name="bonus_coins" type="number" min={0} max={1000000} step={1} placeholder="0" />
             </label>
           </div>
-          <p className="text-sm text-slate-300">لو الإجابة حلوة، اكتب بونص. سيبها فاضية لو مش عايز.</p>
+          <p className="text-sm text-[#a1a1aa]">If the answer is especially good, enter a bonus. Leave this blank if you don't want one.</p>
           <div className="flex flex-wrap gap-2">
             <button className="btn btn-ok" disabled={pending}>
-              ✅ قبول
+              <Icon name="check" /> Approve
             </button>
             <button type="button" className="btn btn-danger" onClick={() => setRejecting(true)}>
-              ❌ رفض
+              <Icon name="x" /> Reject
             </button>
           </div>
         </form>
@@ -115,44 +116,44 @@ export function UserEditor({ userId, username }: { userId: string; username: str
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <form action={nameAction} className="card space-y-3 p-4">
-        <h2 className="font-extrabold">اسم المستخدم</h2>
+        <h2 className="font-extrabold">Username</h2>
         {nameState?.error ? <Alert tone="error">{nameState.error}</Alert> : null}
         {nameState?.ok ? <Alert tone="ok">{nameState.ok}</Alert> : null}
         <input type="hidden" name="user_id" value={userId} />
         <input className="field" name="username" defaultValue={username} minLength={3} maxLength={24} />
-        <button className="btn btn-primary" disabled={namePending}>حفظ الاسم</button>
+        <button className="btn btn-primary" disabled={namePending}>Save name</button>
       </form>
       <form action={xpAction} className="card space-y-3 p-4">
         <h2 className="font-extrabold">XP</h2>
         {xpState?.error ? <Alert tone="error">{xpState.error}</Alert> : null}
         {xpState?.ok ? <Alert tone="ok">{xpState.ok}</Alert> : null}
         <input type="hidden" name="user_id" value={userId} />
-        <input className="field" name="delta" type="number" placeholder="مثال: 50 أو -20" required />
-        <button className="btn btn-primary" disabled={xpPending}>تطبيق</button>
+        <input className="field" name="delta" type="number" placeholder="For example: 50 or -20" required />
+        <button className="btn btn-primary" disabled={xpPending}>Apply</button>
       </form>
       <form action={coinAction} className="card space-y-3 p-4">
-        <h2 className="font-extrabold">الكوينز</h2>
+        <h2 className="font-extrabold">Coins</h2>
         {coinState?.error ? <Alert tone="error">{coinState.error}</Alert> : null}
         {coinState?.ok ? <Alert tone="ok">{coinState.ok}</Alert> : null}
         <input type="hidden" name="user_id" value={userId} />
-        <input className="field" name="delta" type="number" placeholder="مثال: 30 أو -10" required />
-        <button className="btn btn-primary" disabled={coinPending}>تطبيق</button>
+        <input className="field" name="delta" type="number" placeholder="For example: 30 or -10" required />
+        <button className="btn btn-primary" disabled={coinPending}>Apply</button>
       </form>
       <form action={banAction} className="card space-y-3 p-4">
-        <h2 className="font-extrabold">إيقاف الحساب</h2>
+        <h2 className="font-extrabold">Suspend account</h2>
         {banState?.error ? <Alert tone="error">{banState.error}</Alert> : null}
         {banState?.ok ? <Alert tone="ok">{banState.ok}</Alert> : null}
         <input type="hidden" name="user_id" value={userId} />
-        <textarea className="field min-h-20" name="reason" placeholder="سبب الإيقاف" required minLength={2} />
+        <textarea className="field min-h-20" name="reason" placeholder="Suspension reason" required minLength={2} />
         <label className="flex items-center gap-2 text-sm font-bold">
           <input type="checkbox" name="permanent" defaultChecked />
-          إيقاف دائم
+          Permanent suspension
         </label>
         <label className="block text-sm font-bold">
-          أو ميعاد الانتهاء
+          Or an end time
           <input className="field mt-1" type="datetime-local" name="expires_at" />
         </label>
-        <button className="btn btn-danger" disabled={banPending}>إيقاف</button>
+        <button className="btn btn-danger" disabled={banPending}>Suspend</button>
       </form>
     </div>
   );
@@ -166,17 +167,17 @@ export function NotifyForm({ users }: { users: { id: string; username: string }[
       {state?.error ? <Alert tone="error">{state.error}</Alert> : null}
       {state?.ok ? <Alert tone="ok">{state.ok}</Alert> : null}
       <label className="block text-sm font-bold">
-        مين؟
+        Who?
         <select className="field mt-1" name="audience" value={audience} onChange={(event) => setAudience(event.target.value)}>
-          <option value="all">كل اللاعبين</option>
-          <option value="user">لاعب محدد</option>
+          <option value="all">All players</option>
+          <option value="user">A specific player</option>
         </select>
       </label>
       {audience === "user" ? (
         <label className="block text-sm font-bold">
-          اللاعب
+          Player
           <select className="field mt-1" name="user_id" required>
-            <option value="">اختار</option>
+            <option value="">Choose</option>
             {users.map((user) => (
               <option key={user.id} value={user.id}>
                 {user.username}
@@ -186,15 +187,15 @@ export function NotifyForm({ users }: { users: { id: string; username: string }[
         </label>
       ) : null}
       <label className="block text-sm font-bold">
-        العنوان
+        Title
         <input className="field mt-1" name="title" required maxLength={120} />
       </label>
       <label className="block text-sm font-bold">
-        الرسالة
+        Message
         <textarea className="field mt-1 min-h-24" name="body" required maxLength={500} />
       </label>
       <button className="btn btn-primary" disabled={pending}>
-        {pending ? "جاري الإرسال..." : "إرسال"}
+        {pending ? "Sending..." : "Send"}
       </button>
     </form>
   );
@@ -204,29 +205,41 @@ export function AchievementForm({ achievement }: { achievement?: Achievement | n
   const [state, action, pending] = useActionState(saveAchievement, null);
   return (
     <form action={action} className="card space-y-3 p-4">
-      <h2 className="font-extrabold">{achievement ? "تعديل إنجاز" : "إنجاز جديد"}</h2>
+      <h2 className="font-extrabold">{achievement ? "Edit achievement" : "New achievement"}</h2>
       {achievement ? <input type="hidden" name="id" value={achievement.id} /> : null}
       {state?.error ? <Alert tone="error">{state.error}</Alert> : null}
       <div className="grid gap-3 md:grid-cols-2">
-        <label className="text-sm font-bold">الكود<input className="field mt-1" name="slug" defaultValue={achievement?.slug ?? ""} required /></label>
-        <label className="text-sm font-bold">الأيقونة<input className="field mt-1" name="icon" defaultValue={achievement?.icon ?? "🏆"} required /></label>
-        <label className="text-sm font-bold md:col-span-2">العنوان<input className="field mt-1" name="title" defaultValue={achievement?.title ?? ""} required /></label>
-        <label className="text-sm font-bold md:col-span-2">الوصف<textarea className="field mt-1" name="description" defaultValue={achievement?.description ?? ""} required /></label>
+        <label className="text-sm font-bold">Code<input className="field mt-1" name="slug" defaultValue={achievement?.slug ?? ""} required /></label>
         <label className="text-sm font-bold">
-          الشرط
+          Icon
+          <select className="field mt-1" name="icon" defaultValue={achievement?.icon ?? "trophy"}>
+            <option value="trophy">Trophy</option>
+            <option value="flame">Flame</option>
+            <option value="zap">XP</option>
+            <option value="gem">Gem</option>
+            <option value="crown">Crown</option>
+            <option value="coin">Coin</option>
+            <option value="star">Star</option>
+            <option value="award">Award</option>
+          </select>
+        </label>
+        <label className="text-sm font-bold md:col-span-2">Title<input className="field mt-1" name="title" defaultValue={achievement?.title ?? ""} required /></label>
+        <label className="text-sm font-bold md:col-span-2">Description<textarea className="field mt-1" name="description" defaultValue={achievement?.description ?? ""} required /></label>
+        <label className="text-sm font-bold">
+          Requirement
           <select className="field mt-1" name="condition_type" defaultValue={achievement?.condition_type ?? "completed_tasks"}>
             {Object.entries(CONDITION_LABEL).map(([id, label]) => (
               <option key={id} value={id}>{label}</option>
             ))}
           </select>
         </label>
-        <label className="text-sm font-bold">القيمة<input className="field mt-1" type="number" min={1} name="condition_value" defaultValue={achievement?.condition_value ?? 1} required /></label>
+        <label className="text-sm font-bold">Value<input className="field mt-1" type="number" min={1} name="condition_value" defaultValue={achievement?.condition_value ?? 1} required /></label>
       </div>
       <label className="flex items-center gap-2 text-sm font-bold">
         <input type="checkbox" name="is_active" defaultChecked={achievement?.is_active ?? true} />
-        ظاهر للاعبين
+        Visible to players
       </label>
-      <button className="btn btn-primary" disabled={pending}>حفظ الإنجاز</button>
+      <button className="btn btn-primary" disabled={pending}>Save achievement</button>
     </form>
   );
 }
@@ -239,50 +252,50 @@ export function SettingsForm({ config }: { config: PublicConfig }) {
       {state?.error ? <Alert tone="error">{state.error}</Alert> : null}
       {state?.ok ? <Alert tone="ok">{state.ok}</Alert> : null}
       <section className="card space-y-3 p-4">
-        <h2 className="font-extrabold">قواعد اللعبة</h2>
+        <h2 className="font-extrabold">Game rules</h2>
         <label className="flex items-center gap-2 text-sm font-bold">
           <input type="checkbox" name="leaderboard_enabled" defaultChecked={config.leaderboard_enabled} />
-          المتصدرين ظاهرين
+          Leaderboard is visible
         </label>
         <label className="flex items-center gap-2 text-sm font-bold">
           <input type="checkbox" name="streak_reset_on_miss" defaultChecked={config.streak_reset_on_miss} />
-          لو فات يوم، الستريك يرجع من الأول
+          If a day is missed, the streak starts over
         </label>
         <label className="block text-sm font-bold">
-          المنطقة الزمنية
+          Time zone
           <input className="field mt-1 text-left" dir="ltr" name="timezone" defaultValue={config.timezone} />
         </label>
         <label className="block text-sm font-bold">
-          مستويات الـ XP، مفصولة بفاصلة. أول رقم لازم يكون 0
+          XP levels, separated by commas. The first number must be 0
           <input className="field mt-1 text-left" dir="ltr" name="level_thresholds" defaultValue={config.level_thresholds.join(", ")} />
         </label>
       </section>
       <section className="card space-y-3 p-4">
-        <h2 className="font-extrabold">مكافأة الدخول اليومية</h2>
+        <h2 className="font-extrabold">Daily login reward</h2>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {[1, 2, 3, 4, 5, 6, 7].map((day) => (
             <label key={day} className="text-sm font-bold">
-              يوم {day}
+              Day {day}
               <input className="field mt-1 text-left" dir="ltr" type="number" min={0} name={`reward_${day}`} defaultValue={rewards.get(day) ?? 0} />
             </label>
           ))}
         </div>
       </section>
       <section className="card space-y-3 p-4">
-        <h2 className="font-extrabold">المكافأة الافتراضية لكل صعوبة</h2>
+        <h2 className="font-extrabold">Default reward for each difficulty</h2>
         <div className="grid gap-3 md:grid-cols-2">
           {DIFFICULTIES.map((item) => (
-            <div key={item.id} className="rounded-2xl border border-white/10 p-3">
+            <div key={item.id} className="rounded-2xl border border-[#2a2a2e] p-3">
               <p className="mb-2 font-extrabold">{item.label}</p>
               <div className="grid grid-cols-2 gap-2">
                 <label className="text-sm">XP<input className="field mt-1 text-left" dir="ltr" type="number" min={0} name={`${item.id}_xp`} defaultValue={config.difficulty_defaults[item.id]?.xp ?? 0} /></label>
-                <label className="text-sm">كوينز<input className="field mt-1 text-left" dir="ltr" type="number" min={0} name={`${item.id}_coins`} defaultValue={config.difficulty_defaults[item.id]?.coins ?? 0} /></label>
+                <label className="text-sm">Coins<input className="field mt-1 text-left" dir="ltr" type="number" min={0} name={`${item.id}_coins`} defaultValue={config.difficulty_defaults[item.id]?.coins ?? 0} /></label>
               </div>
             </div>
           ))}
         </div>
       </section>
-      <button className="btn btn-primary" disabled={pending}>{pending ? "جاري الحفظ..." : "حفظ الإعدادات"}</button>
+      <button className="btn btn-primary" disabled={pending}>{pending ? "Saving..." : "Save settings"}</button>
     </form>
   );
 }

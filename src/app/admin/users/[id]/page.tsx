@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { UserEditor } from "@/components/admin-panels";
+import { Icon } from "@/components/icons";
 import { Alert, PageHeader, Stat } from "@/components/ui";
 import { removeUser, resetStreak, sendPasswordReset, setRole, unbanUser } from "@/lib/actions/admin";
 import { requireAdmin } from "@/lib/auth";
@@ -8,10 +9,10 @@ import { formatDate, formatNumber } from "@/lib/format";
 import type { Ban, Profile, PublicConfig } from "@/lib/types";
 
 const messages: Record<string, string> = {
-  streak: "الستريك الحالي اتصفر.",
-  role: "الصلاحية اتغيرت.",
-  unban: "الإيقاف اتفك.",
-  reset: "بعتنا رابط تغيير الباسورد.",
+  streak: "The current streak was reset.",
+  role: "The role was changed.",
+  unban: "The suspension was lifted.",
+  reset: "We sent a password reset link.",
 };
 
 export default async function AdminUserPage({
@@ -37,42 +38,42 @@ export default async function AdminUserPage({
 
   return (
     <div className="space-y-4">
-      <Link href="/admin/users" className="text-sm font-bold text-amber-200">رجوع للمستخدمين</Link>
+      <Link href="/admin/users" className="text-sm font-bold text-[#e4e4e7]">Back to users</Link>
       <PageHeader title={person.username} subtitle={person.email} />
       {query.ok && messages[query.ok] ? <Alert tone="ok">{messages[query.ok]}</Alert> : null}
       {query.error ? <Alert tone="error">{query.error}</Alert> : null}
-      {active ? <Alert tone="error">موقوف: {active.reason}{active.expires_at ? ` حتى ${formatDate(active.expires_at, timeZone)}` : " بشكل دائم"}</Alert> : null}
+      {active ? <Alert tone="error">Suspended: {active.reason}{active.expires_at ? ` until ${formatDate(active.expires_at, timeZone)}` : " permanently"}</Alert> : null}
       <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat icon="⭐" label="المستوى" value={formatNumber(person.level)} />
-        <Stat icon="⚡" label="XP" value={formatNumber(person.xp)} />
-        <Stat icon="🪙" label="كوينز" value={formatNumber(person.coins)} />
-        <Stat icon="🔥" label="ستريك" value={formatNumber(person.current_streak)} />
-        <Stat icon="✅" label="مهام" value={formatNumber(person.total_completed_tasks)} />
-        <Stat icon="📤" label="طلبات" value={formatNumber(person.total_submitted_tasks)} />
+        <Stat icon={<Icon name="star" />} label="Level" value={formatNumber(person.level)} />
+        <Stat icon={<Icon name="zap" />} label="XP" value={formatNumber(person.xp)} />
+        <Stat icon={<Icon name="coin" />} label="Coins" value={formatNumber(person.coins)} />
+        <Stat icon={<Icon name="flame" />} label="Streak" value={formatNumber(person.current_streak)} />
+        <Stat icon={<Icon name="check" />} label="Missions" value={formatNumber(person.total_completed_tasks)} />
+        <Stat icon={<Icon name="upload" />} label="Submissions" value={formatNumber(person.total_submitted_tasks)} />
       </section>
-      <p className="text-sm text-slate-300">انضم {formatDate(person.created_at, timeZone)} · آخر دخول {formatDate(person.last_login, timeZone)}</p>
+      <p className="text-sm text-[#a1a1aa]">Joined {formatDate(person.created_at, timeZone)} · Last sign-in {formatDate(person.last_login, timeZone)}</p>
       <UserEditor userId={person.id} username={person.username} />
       <section className="card space-y-3 p-4">
-        <h2 className="font-extrabold">إجراءات</h2>
+        <h2 className="font-extrabold">Actions</h2>
         <div className="flex flex-wrap gap-2">
           <form action={setRole}>
             <input type="hidden" name="user_id" value={person.id} />
             <input type="hidden" name="role" value={person.role === "admin" ? "user" : "admin"} />
-            <button className="btn btn-ghost">{person.role === "admin" ? "خلّيه لاعب" : "خلّيه أدمن"}</button>
+            <button className="btn btn-ghost">{person.role === "admin" ? "Make player" : "Make admin"}</button>
           </form>
           <form action={resetStreak}>
             <input type="hidden" name="user_id" value={person.id} />
-            <button className="btn btn-ghost">تصفير الستريك</button>
+            <button className="btn btn-ghost">Reset streak</button>
           </form>
           <form action={sendPasswordReset}>
             <input type="hidden" name="user_id" value={person.id} />
             <input type="hidden" name="email" value={person.email} />
-            <button className="btn btn-ghost">إرسال تغيير الباسورد</button>
+            <button className="btn btn-ghost">Send password reset</button>
           </form>
           {active ? (
             <form action={unbanUser}>
               <input type="hidden" name="user_id" value={person.id} />
-              <button className="btn btn-ok">فك الإيقاف</button>
+              <button className="btn btn-ok">Lift suspension</button>
             </form>
           ) : null}
           {user.id !== person.id ? (
@@ -80,7 +81,7 @@ export default async function AdminUserPage({
               <input type="hidden" name="user_id" value={person.id} />
               <input type="hidden" name="username" value={person.username} />
               <input type="hidden" name="email" value={person.email} />
-              <button className="btn btn-danger">مسح الحساب</button>
+              <button className="btn btn-danger">Delete account</button>
             </form>
           ) : null}
         </div>

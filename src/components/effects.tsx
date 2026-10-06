@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { dismissNotice } from "@/lib/actions/player";
+import { Icon } from "@/components/icons";
+import { englishCopy } from "@/lib/copy";
 
 function Confetti() {
   const colors = ["#67e8f9", "#fde68a", "#c4b5fd", "#fb7185", "#6ee7b7"];
@@ -38,12 +40,12 @@ export function GameEffects({
         <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/75 p-4">
           <Confetti />
           <div className="popup card relative z-10 w-full max-w-md px-6 py-8 text-center">
-            <p className="text-4xl">🎉</p>
-            <h2 className="mt-3 text-3xl font-black">LEVEL UP!</h2>
-            <p className="mt-2 text-xl text-amber-200">{levelUp.body}</p>
+            <Icon name="zap" className="mx-auto h-8 w-8" />
+            <h2 className="mt-3 text-3xl font-semibold">Level up</h2>
+            <p className="mt-2 text-xl text-[#e4e4e7]">{englishCopy(levelUp.body)}</p>
             <form action={dismissNotice} className="mt-6" onSubmit={() => setShowLevel(false)}>
               <input type="hidden" name="id" value={levelUp.id} />
-              <button className="btn btn-primary w-full">يلا نكمل 🔥</button>
+              <button className="btn btn-primary w-full">Continue</button>
             </form>
           </div>
         </div>
@@ -51,12 +53,12 @@ export function GameEffects({
       {showReward && reward && !showLevel ? (
         <div className="fixed inset-0 z-40 grid place-items-center bg-slate-950/70 p-4">
           <div className="popup card w-full max-w-md px-6 py-8 text-center">
-            <p className="text-4xl">🎁</p>
-            <h2 className="mt-3 text-2xl font-black">مكافأة الدخول اليومية</h2>
-            <p className="mt-3 text-lg leading-8 text-amber-100">{reward.body}</p>
+            <Icon name="gift" className="mx-auto h-8 w-8" />
+            <h2 className="mt-3 text-2xl font-black">Daily login reward</h2>
+            <p className="mt-3 text-lg leading-8 text-[#d4d4d8]">{englishCopy(reward.body)}</p>
             <form action={dismissNotice} className="mt-6" onSubmit={() => setShowReward(false)}>
               <input type="hidden" name="id" value={reward.id} />
-              <button className="btn btn-primary w-full">تمام، شكراً</button>
+              <button className="btn btn-primary w-full">Got it, thanks</button>
             </form>
           </div>
         </div>

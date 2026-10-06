@@ -1,20 +1,23 @@
+import { Icon } from "@/components/icons";
 import { Avatar, EmptyState, PageHeader } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { formatNumber } from "@/lib/format";
 import type { LeaderRow, PublicConfig } from "@/lib/types";
 
 const sorts = [
-  { id: "xp", label: "الـ XP" },
-  { id: "completed", label: "المهام" },
-  { id: "coins", label: "الكوينز" },
-  { id: "streak", label: "الستريك" },
+  { id: "xp", label: "XP" },
+  { id: "completed", label: "Missions" },
+  { id: "coins", label: "Coins" },
+  { id: "streak", label: "Streak" },
 ];
 
-function medal(place: number) {
-  if (place === 1) return "🥇";
-  if (place === 2) return "🥈";
-  if (place === 3) return "🥉";
-  return formatNumber(place);
+function Rank({ place }: { place: number }) {
+  return (
+    <span className="grid w-10 place-items-center text-sm font-semibold text-[#a1a1aa]">
+      {place <= 3 ? <Icon name={place === 1 ? "crown" : "award"} className="mb-0.5 h-4 w-4" /> : null}
+      {formatNumber(place)}
+    </span>
+  );
 }
 
 export default async function LeaderboardPage({
@@ -35,37 +38,39 @@ export default async function LeaderboardPage({
 
   return (
     <div>
-      <PageHeader title="المتصدرين 🏆" subtitle="الترتيب من غير أي بيانات خاصة." />
+      <PageHeader title="Leaderboard" subtitle="Rankings, with no private details." />
       {!enabled && profile.role !== "admin" ? (
-        <EmptyState title="المتصدرين مقفولين دلوقتي" body="الأدمن قافل لوحة الترتيب." />
+        <EmptyState title="The leaderboard is closed right now" body="An admin has turned the leaderboard off." />
       ) : (
         <>
-          {!enabled ? <p className="mb-3 text-sm text-amber-200">المتصدرين مقفولين على اللاعبين، وأنت شايفهم لأنك أدمن.</p> : null}
+          {!enabled ? <p className="mb-3 text-sm text-[#e4e4e7]">The leaderboard is hidden from players. You can see it because you're an admin.</p> : null}
           <div className="mb-4 flex gap-2 overflow-x-auto">
             {sorts.map((item) => (
-              <a key={item.id} href={`/leaderboard?sort=${item.id}`} className={`chip shrink-0 ${sort === item.id ? "bg-amber-300 text-[#2a1604]" : ""}`}>
+              <a key={item.id} href={`/leaderboard?sort=${item.id}`} className={`chip shrink-0 ${sort === item.id ? "bg-[#fafafa] text-[#09090b]" : ""}`}>
                 {item.label}
               </a>
             ))}
           </div>
-          {error ? <EmptyState title="مقدرناش نحمّل الترتيب" body="جرّب تاني بعد شوية." /> : null}
+          {error ? <EmptyState title="We couldn't load the rankings" body="Try again in a moment." /> : null}
           <div className="grid gap-2">
             {rows.map((row) => (
-              <article key={row.user_id} className={`card flex items-center gap-3 p-3 ${row.is_me ? "border-amber-300/60" : ""}`}>
-                <span className="w-10 text-center text-lg font-black">{medal(Number(row.place))}</span>
+              <article key={row.user_id} className={`card flex items-center gap-3 p-3 ${row.is_me ? "border-[#fafafa]" : ""}`}>
+                <Rank place={Number(row.place)} />
                 <Avatar name={row.username} path={row.avatar_url} size="sm" />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-extrabold">{row.username}{row.is_me ? " · أنت" : ""}</p>
-                  <p className="text-sm text-slate-300">المستوى {formatNumber(row.level)}</p>
+                  <p className="truncate font-extrabold">{row.username}{row.is_me ? " · You" : ""}</p>
+                  <p className="text-sm text-[#a1a1aa]">Level {formatNumber(row.level)}</p>
                 </div>
-                <p className="text-sm font-extrabold">
-                  {sort === "completed"
-                    ? `${formatNumber(row.total_completed_tasks)} مهمة`
-                    : sort === "coins"
-                      ? `${formatNumber(row.coins)} 🪙`
-                      : sort === "streak"
-                        ? `${formatNumber(row.current_streak)} 🔥`
-                        : `${formatNumber(row.xp)} XP`}
+                <p className="flex items-center gap-1.5 text-sm font-semibold">
+                  {sort === "completed" ? (
+                    formatNumber(row.total_completed_tasks)
+                  ) : sort === "coins" ? (
+                    <><Icon name="coin" /> {formatNumber(row.coins)}</>
+                  ) : sort === "streak" ? (
+                    <><Icon name="flame" /> {formatNumber(row.current_streak)}</>
+                  ) : (
+                    <><Icon name="zap" /> {formatNumber(row.xp)}</>
+                  )}
                 </p>
               </article>
             ))}

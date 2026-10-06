@@ -33,21 +33,21 @@ export default async function AdminUsersPage({
 
   return (
     <div>
-      <PageHeader title="المستخدمين" subtitle="دوّر، فلتر، وافتح بروفايل أي لاعب." />
-      {params.ok === "deleted" ? <Alert tone="ok">الحساب اتمسح.</Alert> : null}
+      <PageHeader title="Users" subtitle="Search, filter, and open any player's profile." />
+      {params.ok === "deleted" ? <Alert tone="ok">The account was deleted.</Alert> : null}
       <form className="card mb-4 grid gap-3 p-4 md:grid-cols-4">
-        <input className="field md:col-span-2" name="q" defaultValue={params.q ?? ""} placeholder="اسم أو إيميل" />
+        <input className="field md:col-span-2" name="q" defaultValue={params.q ?? ""} placeholder="Name or email" />
         <select className="field" name="role" defaultValue={params.role ?? ""}>
-          <option value="">كل الصلاحيات</option>
-          <option value="user">لاعب</option>
-          <option value="admin">أدمن</option>
+          <option value="">All roles</option>
+          <option value="user">Player</option>
+          <option value="admin">Admin</option>
         </select>
         <select className="field" name="status" defaultValue={params.status ?? ""}>
-          <option value="">الكل</option>
-          <option value="active">شغال</option>
-          <option value="banned">موقوف</option>
+          <option value="">All</option>
+          <option value="active">Active</option>
+          <option value="banned">Suspended</option>
         </select>
-        <button className="btn btn-primary md:col-span-4">بحث</button>
+        <button className="btn btn-primary md:col-span-4">Search</button>
       </form>
       <div className="grid gap-2">
         {rows.map((row) => {
@@ -56,15 +56,15 @@ export default async function AdminUsersPage({
             <Link key={row.id} href={`/admin/users/${row.id}`} className="card grid gap-2 p-4 sm:grid-cols-[1.4fr_1fr_auto] sm:items-center">
               <div>
                 <p className="font-extrabold">{row.username}</p>
-                <p className="text-sm text-slate-300">{row.email}</p>
+                <p className="text-sm text-[#a1a1aa]">{row.email}</p>
               </div>
-              <p className="text-sm text-slate-300">
-                مستوى {formatNumber(row.level)} · {formatNumber(row.xp)} XP · {formatNumber(row.coins)} كوين
+              <p className="text-sm text-[#a1a1aa]">
+                Level {formatNumber(row.level)} · {formatNumber(row.xp)} XP · {formatNumber(row.coins)} coins
               </p>
               <div className="text-sm">
-                <span className="chip">{row.role === "admin" ? "أدمن" : "لاعب"}</span>
-                {ban ? <span className="chip ms-2">موقوف</span> : null}
-                <p className="mt-1 text-slate-400">{formatDate(row.created_at, timeZone)}</p>
+                <span className="chip">{row.role === "admin" ? "Admin" : "Player"}</span>
+                {ban ? <span className="chip ms-2">Suspended</span> : null}
+                <p className="mt-1 text-[#a1a1aa]">{formatDate(row.created_at, timeZone)}</p>
               </div>
             </Link>
           );

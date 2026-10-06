@@ -1,6 +1,7 @@
 import { TaskList } from "@/components/task-list";
 import { PageHeader } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
+import { publishDueMission } from "@/lib/daily-missions";
 import { getFirstSubmitBonuses } from "@/lib/first-bonus";
 import { getFirstOnlyTaskIds, takenFirstOnlyTaskIds } from "@/lib/first-only";
 import { describeTask } from "@/lib/tasks";
@@ -11,6 +12,7 @@ export default async function TasksPage({
 }: {
   searchParams: Promise<{ filter?: string }>;
 }) {
+  await publishDueMission();
   const params = await searchParams;
   const filter = params.filter ?? "available";
   const { supabase, profile } = await requireUser();
@@ -34,18 +36,18 @@ export default async function TasksPage({
   });
 
   const filters = [
-    { id: "available", label: "المتاحة" },
-    { id: "waiting", label: "مستنية المراجعة" },
-    { id: "done", label: "المخلّصة" },
-    { id: "all", label: "الكل" },
+    { id: "available", label: "Available" },
+    { id: "waiting", label: "In review" },
+    { id: "done", label: "Completed" },
+    { id: "all", label: "All" },
   ];
 
   return (
     <div>
-      <PageHeader title="المهام" subtitle="اختار مهمة وخلّصها عشان تاخد المكافأة بعد الموافقة." />
+      <PageHeader title="Missions" subtitle="Pick a mission and finish it. The reward is added after approval." />
       <div className="mb-4 flex gap-2 overflow-x-auto">
         {filters.map((item) => (
-          <a key={item.id} href={`/tasks?filter=${item.id}`} className={`chip shrink-0 ${filter === item.id ? "bg-amber-300 text-[#2a1604]" : ""}`}>
+          <a key={item.id} href={`/tasks?filter=${item.id}`} className={`chip shrink-0 ${filter === item.id ? "bg-[#fafafa] text-[#09090b]" : ""}`}>
             {item.label}
           </a>
         ))}

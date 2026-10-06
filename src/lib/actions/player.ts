@@ -23,28 +23,28 @@ async function currentUser() {
 
 export async function submitTask(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const { supabase, user } = await currentUser();
-  if (!user) return { error: "لازم تسجل دخول" };
+  if (!user) return { error: "Sign in to continue" };
 
   const taskId = String(formData.get("task_id") ?? "");
   const note = String(formData.get("note") ?? "");
   const file = formData.get("photo");
   const firstOnly = await getFirstOnlyTaskIds();
   if (firstOnly.has(taskId) && (await taskClaimedBySomeoneElse(taskId, user.id))) {
-    return { error: "المهمة دي لأول واحد بس، وحد سبقك." };
+    return { error: "Only the first player can take this mission, and someone already did." };
   }
   let path: string | null = null;
 
   if (file instanceof File && file.size > 0) {
-    if (file.size > 5 * 1024 * 1024) return { error: "الصورة لازم تكون أقل من 5 ميجا" };
+    if (file.size > 5 * 1024 * 1024) return { error: "The photo must be under 5 MB" };
     const ext = PHOTO_TYPES[file.type];
-    if (!ext) return { error: "الصورة لازم تكون JPG أو PNG أو WEBP" };
+    if (!ext) return { error: "Use a JPG, PNG, or WEBP photo" };
     path = `${user.id}/${crypto.randomUUID()}.${ext}`;
     const bytes = new Uint8Array(await file.arrayBuffer());
     const { error: uploadError } = await supabase.storage.from("task-submissions").upload(path, bytes, {
       contentType: file.type,
       upsert: false,
     });
-    if (uploadError) return { error: "مقدرناش نرفع الصورة، جرّب تاني" };
+    if (uploadError) return { error: "The photo didn't upload. Try again." };
   }
 
   const { data: submissionId, error } = await supabase.rpc("submit_task", {
@@ -72,7 +72,7 @@ export async function submitTask(_prev: ActionState, formData: FormData): Promis
     if (holder && holder.id !== submissionId && holder.user_id !== user.id) {
       await admin.from("task_submissions").delete().eq("id", submissionId);
       if (path) await supabase.storage.from("task-submissions").remove([path]);
-      return { error: "المهمة دي لأول واحد بس، وحد سبقك." };
+      return { error: "Only the first player can take this mission, and someone already did." };
     }
   }
 
@@ -81,30 +81,30 @@ export async function submitTask(_prev: ActionState, formData: FormData): Promis
   revalidatePath(`/tasks/${taskId}`);
   revalidatePath("/submissions");
   revalidatePath("/notifications");
-  return { ok: "المهمة مستنية المراجعة" };
+  return { ok: "Mission sent for review" };
 }
 
 export async function updateProfile(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const { supabase, user } = await currentUser();
-  if (!user) return { error: "لازم تسجل دخول" };
+  if (!user) return { error: "Sign in to continue" };
 
   const username = String(formData.get("username") ?? "").trim();
-  if (username.length < 3 || username.length > 24) return { error: "اسم المستخدم لازم يكون من 3 لـ 24 حرف" };
-  if (/[<>]/.test(username)) return { error: "اسم المستخدم فيه رموز مش مسموحة" };
+  if (username.length < 3 || username.length > 24) return { error: "Username must be 3 to 24 characters" };
+  if (/[<>]/.test(username)) return { error: "That username has characters that aren't allowed" };
 
   const file = formData.get("avatar");
   let avatarPath: string | undefined;
   if (file instanceof File && file.size > 0) {
-    if (file.size > 2 * 1024 * 1024) return { error: "صورة البروفايل لازم تكون أقل من 2 ميجا" };
+    if (file.size > 2 * 1024 * 1024) return { error: "The profile photo must be under 2 MB" };
     const ext = PHOTO_TYPES[file.type];
-    if (!ext) return { error: "الصورة لازم تكون JPG أو PNG أو WEBP" };
+    if (!ext) return { error: "Use a JPG, PNG, or WEBP photo" };
     avatarPath = `${user.id}/avatar.${ext}`;
     const bytes = new Uint8Array(await file.arrayBuffer());
     const { error: uploadError } = await supabase.storage.from("avatars").upload(avatarPath, bytes, {
       contentType: file.type,
       upsert: true,
     });
-    if (uploadError) return { error: "مقدرناش نرفع الصورة" };
+    if (uploadError) return { error: "The photo didn't upload" };
   }
 
   const patch: { username: string; avatar_url?: string } = { username };
@@ -115,7 +115,7 @@ export async function updateProfile(_prev: ActionState, formData: FormData): Pro
 
   revalidatePath("/", "layout");
   revalidatePath("/profile");
-  return { ok: "تم حفظ البروفايل" };
+  return { ok: "Profile saved" };
 }
 
 export async function markNotificationRead(formData: FormData) {

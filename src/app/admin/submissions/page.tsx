@@ -50,14 +50,14 @@ export default async function AdminSubmissionsPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader title="طلبات المهام" subtitle="المكافأة بتتضاف مرة واحدة بعد القبول. تقدر تضيف بونص لو الإجابة حلوة." />
-      {rows.length === 0 ? <EmptyState title="مفيش طلبات مستنية" body="لما اللاعبين يبعتوا مهام هتظهر هنا." /> : null}
+      <PageHeader title="Mission submissions" subtitle="The reward is added once, after approval. You can add a bonus if the answer is especially good." />
+      {rows.length === 0 ? <EmptyState title="No submissions waiting" body="When players submit missions, they will show up here." /> : null}
       {rows.map((row) => (
         <ReviewCard
           key={row.id}
           id={row.id}
-          username={one(row.user)?.username ?? "لاعب"}
-          task={one(row.tasks)?.title ?? "مهمة"}
+          username={one(row.user)?.username ?? "Player"}
+          task={one(row.tasks)?.title ?? "Mission"}
           xp={one(row.tasks)?.xp_reward ?? 0}
           coins={one(row.tasks)?.coin_reward ?? 0}
           firstCoinBonus={firstSubmitBonus(firstBonuses, row.task_id, one(row.tasks)?.coin_reward ?? 0)}

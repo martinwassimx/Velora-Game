@@ -11,7 +11,7 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(event.request).catch(
       () =>
-        new Response("افتح الإنترنت وحاول تفتح اللعبة تاني.", {
+        new Response("You are offline. Reconnect and open Velora again.", {
           headers: { "Content-Type": "text/plain; charset=utf-8" },
         }),
     ),

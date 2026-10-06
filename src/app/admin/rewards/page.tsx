@@ -1,3 +1,4 @@
+import { Icon } from "@/components/icons";
 import { AddRewardForm, RewardVisibilityForm } from "@/components/reward-forms";
 import { Alert, PageHeader } from "@/components/ui";
 import { deleteRedeemReward } from "@/lib/actions/rewards";
@@ -18,10 +19,10 @@ export default async function AdminRewardsPage({
   return (
     <div className="space-y-4">
       <PageHeader
-        title="مكافآت الكوينز"
-        subtitle="ضيف اللي اللاعب يقدر يستبدله. طالما «قريبًا» شغّال، الصفحة عندهم مقفولة."
+        title="Coin rewards"
+        subtitle="Add what players can redeem. While Coming soon is on, their page stays closed."
       />
-      {params.ok === "deleted" ? <Alert tone="ok">المكافأة اتمسحت.</Alert> : null}
+      {params.ok === "deleted" ? <Alert tone="ok">The reward was deleted.</Alert> : null}
       {params.error ? <Alert tone="error">{params.error}</Alert> : null}
       <RewardVisibilityForm comingSoon={shop.comingSoon} />
       <AddRewardForm />
@@ -34,13 +35,13 @@ export default async function AdminRewardsPage({
               {image ? <img src={image} alt="" className="h-20 w-20 rounded-2xl object-cover" /> : null}
               <div>
               <h2 className="font-extrabold">{item.title}</h2>
-              {item.description ? <p className="text-sm leading-7 text-slate-300">{item.description}</p> : null}
-              <p className="text-sm font-bold text-amber-200">🪙 {formatNumber(item.coins)} كوينز</p>
+              {item.description ? <p className="text-sm leading-7 text-[#a1a1aa]">{item.description}</p> : null}
+              <p className="flex items-center gap-1.5 text-sm font-semibold text-[#e4e4e7]"><Icon name="coin" /> {formatNumber(item.coins)} coins</p>
               </div>
             </div>
             <form action={deleteRedeemReward}>
               <input type="hidden" name="id" value={item.id} />
-              <button className="btn btn-danger">مسح</button>
+              <button className="btn btn-danger">Delete</button>
             </form>
           </article>
           );

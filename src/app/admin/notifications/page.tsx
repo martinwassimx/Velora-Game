@@ -8,7 +8,7 @@ export default async function AdminNotificationsPage() {
 
   return (
     <div>
-      <PageHeader title="الإشعارات" subtitle="ابعت رسالة للاعب واحد أو لكل اللاعبين." />
+      <PageHeader title="Notifications" subtitle="Send a message to one player or to every player." />
       <NotifyForm users={users ?? []} />
     </div>
   );

@@ -15,8 +15,8 @@ export default async function CreateTaskPage() {
 
   return (
     <div>
-      <Link href="/admin/tasks" className="text-sm font-bold text-amber-200">رجوع للمهام</Link>
-      <PageHeader title="مهمة جديدة" subtitle="اكتب التفاصيل والمكافأة، وبعدين عيّنها." />
+      <Link href="/admin/tasks" className="text-sm font-bold text-[#e4e4e7]">Back to missions</Link>
+      <PageHeader title="New mission" subtitle="Write the details and the reward, then assign it." />
       <TaskForm
         users={users ?? []}
         assignedIds={[]}

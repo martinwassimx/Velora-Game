@@ -34,17 +34,17 @@ export default async function EditTaskPage({
 
   return (
     <div className="space-y-4">
-      <Link href="/admin/tasks" className="text-sm font-bold text-amber-200">رجوع للمهام</Link>
-      <PageHeader title="تعديل المهمة" subtitle={current.title} />
+      <Link href="/admin/tasks" className="text-sm font-bold text-[#e4e4e7]">Back to missions</Link>
+      <PageHeader title="Edit mission" subtitle={current.title} />
       {query.error ? <Alert tone="error">{query.error}</Alert> : null}
       <div className="flex flex-wrap gap-2">
         <form action={duplicateTask}>
           <input type="hidden" name="id" value={current.id} />
-          <button className="btn btn-ghost">نسخ المهمة</button>
+          <button className="btn btn-ghost">Duplicate mission</button>
         </form>
         <form action={deleteTask}>
           <input type="hidden" name="id" value={current.id} />
-          <button className="btn btn-danger">مسح المهمة</button>
+          <button className="btn btn-danger">Delete mission</button>
         </form>
       </div>
       <TaskForm

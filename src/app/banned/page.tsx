@@ -1,3 +1,4 @@
+import { Icon } from "@/components/icons";
 import { redirect } from "next/navigation";
 import { logout } from "@/lib/actions/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -13,20 +14,20 @@ export default async function BannedPage() {
   const { data: ban } = await supabase.rpc("current_ban");
   if (!ban) redirect("/");
 
-  const reason = typeof ban.reason === "string" ? ban.reason : "من غير سبب مكتوب";
+  const reason = typeof ban.reason === "string" ? ban.reason : "No reason was given";
   const expires = typeof ban.expires_at === "string" ? ban.expires_at : null;
 
   return (
     <main className="grid min-h-dvh place-items-center px-4">
       <div className="card max-w-lg p-6 text-center">
-        <p className="text-5xl">🚫</p>
-        <h1 className="mt-3 text-3xl font-black">الحساب بتاعك متوقف</h1>
-        <p className="mt-3 text-lg">السبب: {reason}</p>
-        <p className="mt-2 text-slate-300">
-          {expires ? `الإيقاف ينتهي ${formatDate(expires)}` : "الإيقاف ده دائم"}
+        <Icon name="ban" className="mx-auto h-8 w-8" />
+        <h1 className="mt-3 text-3xl font-black">This account is suspended</h1>
+        <p className="mt-3 text-lg">Reason: {reason}</p>
+        <p className="mt-2 text-[#a1a1aa]">
+          {expires ? `The suspension ends ${formatDate(expires)}` : "This suspension is permanent"}
         </p>
         <form action={logout} className="mt-6">
-          <button className="btn btn-ghost">خروج</button>
+          <button className="btn btn-ghost">Sign out</button>
         </form>
       </div>
     </main>

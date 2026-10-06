@@ -4,8 +4,8 @@ export default function ForgotPasswordPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-2xl font-black">نسيت الباسورد؟</h2>
-        <p className="text-slate-300">هنبعتلك رابط تغيير على الإيميل.</p>
+        <h2 className="text-2xl font-black">Forgot your password?</h2>
+        <p className="text-[#a1a1aa]">We'll email you a reset link.</p>
       </div>
       <ForgotForm />
     </div>

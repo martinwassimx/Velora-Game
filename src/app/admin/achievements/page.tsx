@@ -1,4 +1,5 @@
 import { AchievementForm } from "@/components/admin-panels";
+import { Mark } from "@/components/icons";
 import { Alert, PageHeader } from "@/components/ui";
 import { deleteAchievement } from "@/lib/actions/admin";
 import { requireAdmin } from "@/lib/auth";
@@ -19,23 +20,23 @@ export default async function AdminAchievementsPage({
 
   return (
     <div className="space-y-4">
-      <PageHeader title="الإنجازات" subtitle="اللاعب بيفتحها لوحده لما يوصل للشرط." />
-      {params.ok ? <Alert tone="ok">{params.ok === "deleted" ? "الإنجاز اتمسح." : "الإنجاز اتحفظ."}</Alert> : null}
+      <PageHeader title="Achievements" subtitle="Players unlock them on their own when they meet the requirement." />
+      {params.ok ? <Alert tone="ok">{params.ok === "deleted" ? "The achievement was deleted." : "The achievement was saved."}</Alert> : null}
       {params.error ? <Alert tone="error">{params.error}</Alert> : null}
       <AchievementForm achievement={editing} />
       <div className="grid gap-3">
         {items.map((item) => (
           <article key={item.id} className="card flex flex-wrap items-center justify-between gap-3 p-4">
             <div>
-              <h2 className="font-extrabold">{item.icon} {item.title}</h2>
-              <p className="text-sm text-slate-300">{item.description}</p>
-              <p className="text-xs text-slate-400">{CONDITION_LABEL[item.condition_type]} · {formatNumber(item.condition_value)} · {item.is_active ? "ظاهر" : "مخفي"}</p>
+              <h2 className="flex items-center gap-2 font-extrabold"><Mark value={item.icon} /> {item.title}</h2>
+              <p className="text-sm text-[#a1a1aa]">{item.description}</p>
+              <p className="text-xs text-[#a1a1aa]">{CONDITION_LABEL[item.condition_type]} · {formatNumber(item.condition_value)} · {item.is_active ? "Visible" : "Hidden"}</p>
             </div>
             <div className="flex gap-2">
-              <a className="btn btn-ghost" href={`/admin/achievements?edit=${item.id}`}>تعديل</a>
+              <a className="btn btn-ghost" href={`/admin/achievements?edit=${item.id}`}>Edit</a>
               <form action={deleteAchievement}>
                 <input type="hidden" name="id" value={item.id} />
-                <button className="btn btn-danger">مسح</button>
+                <button className="btn btn-danger">Delete</button>
               </form>
             </div>
           </article>

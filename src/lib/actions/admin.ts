@@ -46,9 +46,9 @@ export async function saveTask(_prev: ActionState, formData: FormData): Promise<
   };
 
   const firstBonus = readBonus(formData.get("first_coin_bonus"));
-  if (firstBonus === null) return { error: "بونص أول واحد لازم يكون رقم من 0 لحد 1000000" };
+  if (firstBonus === null) return { error: "The first-player bonus must be a whole number from 0 to 1000000" };
   const coinReward = Number(payload.coin_reward);
-  if (Number.isInteger(coinReward) && coinReward + firstBonus > 1000000) return { error: "بونص أول واحد كبير أوي" };
+  if (Number.isInteger(coinReward) && coinReward + firstBonus > 1000000) return { error: "That first-player bonus is too large" };
 
   const { data, error } = await supabase.rpc("admin_save_task", {
     p_id: idValue || null,
@@ -94,7 +94,7 @@ export async function reviewSubmission(_prev: ActionState, formData: FormData): 
   const reason = String(formData.get("reason") ?? "").trim();
   const bonusXp = approve ? readBonus(formData.get("bonus_xp")) : 0;
   const bonusCoins = approve ? readBonus(formData.get("bonus_coins")) : 0;
-  if (bonusXp === null || bonusCoins === null) return { error: "البونص لازم يكون رقم من 0 لحد 1000000" };
+  if (bonusXp === null || bonusCoins === null) return { error: "The bonus must be a whole number from 0 to 1000000" };
   const admin = createAdminClient();
   const { data: submission } = await admin
     .from("task_submissions")
@@ -102,11 +102,11 @@ export async function reviewSubmission(_prev: ActionState, formData: FormData): 
     .eq("id", id)
     .maybeSingle();
   const task = Array.isArray(submission?.tasks) ? submission.tasks[0] : submission?.tasks;
-  if (!submission || !task) return { error: "الطلب مش موجود" };
-  if (submission.status !== "pending" || submission.reward_granted) return { error: "الطلب ده اتراجع قبل كده" };
+  if (!submission || !task) return { error: "That submission doesn't exist" };
+  if (submission.status !== "pending" || submission.reward_granted) return { error: "That submission was already reviewed" };
 
   if (!approve && (reason.length < 2 || reason.length > 400)) {
-    return { error: reason.length > 400 ? "سبب الرفض طويل أوي" : "اكتب سبب الرفض" };
+    return { error: reason.length > 400 ? "That rejection reason is too long" : "Write a rejection reason" };
   }
 
   const { data: firstRow } = await admin
@@ -123,7 +123,7 @@ export async function reviewSubmission(_prev: ActionState, formData: FormData): 
   const baseCoins = firstSubmit ? firstSubmitterCoins(task.coin_reward, firstExtra) : task.coin_reward;
   const xp = task.xp_reward + bonusXp;
   const coins = baseCoins + bonusCoins;
-  if (xp > 1000000 || coins > 1000000) return { error: "البونص كبير أوي" };
+  if (xp > 1000000 || coins > 1000000) return { error: "That bonus is too large" };
 
   const reviewedAt = new Date().toISOString();
   const { data: updated } = await admin
@@ -140,7 +140,7 @@ export async function reviewSubmission(_prev: ActionState, formData: FormData): 
     .eq("reward_granted", false)
     .select("id")
     .maybeSingle();
-  if (!updated) return { error: "الطلب ده اتراجع قبل كده" };
+  if (!updated) return { error: "That submission was already reviewed" };
 
   if (approve) {
     const { error: rewardError } = await admin.rpc("grant_rewards", {
@@ -160,10 +160,10 @@ export async function reviewSubmission(_prev: ActionState, formData: FormData): 
 
   await admin.from("notifications").insert({
     user_id: submission.user_id,
-    title: approve ? "✅ المهمة اتقبلت" : "❌ المهمة اترفضت",
+    title: approve ? "Mission approved" : "Mission rejected",
     body: approve
-      ? `اتقبلت «${task.title}» وخدت ${xp} XP و ${coins} كوين.${firstSubmit && firstExtra > 0 ? ` أول واحد بعت المهمة، فخد ${firstExtra} كوين زيادة.` : ""}${bonusXp > 0 || bonusCoins > 0 ? ` وبونص ${bonusXp} XP و ${bonusCoins} كوين عشان الإجابة كانت حلوة.` : ""}`
-      : `اترفضت «${task.title}». السبب: ${reason}`,
+      ? `${task.title} was approved. You earned ${xp} XP and ${coins} coins.${firstSubmit && firstExtra > 0 ? ` You were the first to submit, so you earned ${firstExtra} extra coins.` : ""}${bonusXp > 0 || bonusCoins > 0 ? ` That includes a bonus of ${bonusXp} XP and ${bonusCoins} coins for a strong answer.` : ""}`
+      : `${task.title} was rejected. Reason: ${reason}`,
     type: approve ? "submission_approved" : "submission_rejected",
   });
   await admin.from("admin_logs").insert({
@@ -171,7 +171,7 @@ export async function reviewSubmission(_prev: ActionState, formData: FormData): 
     action: approve ? "submission_approved" : "submission_rejected",
     target_type: "submission",
     target_id: id,
-    description: `${approve ? "قبول" : "رفض"} مهمة: ${task.title}`,
+    description: `${approve ? "Approved" : "Rejected"} mission: ${task.title}`,
     metadata: approve
       ? { user_id: submission.user_id, xp, coins, bonus_xp: bonusXp, bonus_coins: bonusCoins, first_submit: firstSubmit, first_extra: firstExtra }
       : { user_id: submission.user_id, reason },
@@ -182,11 +182,11 @@ export async function reviewSubmission(_prev: ActionState, formData: FormData): 
   return {
     ok: approve
       ? bonusXp > 0 || bonusCoins > 0
-        ? `اتقبلت المهمة. اللاعب خد ${xp} XP و ${coins} كوين، منهم بونص ${bonusXp} XP و ${bonusCoins} كوين.`
+        ? `Mission approved. The player earned ${xp} XP and ${coins} coins, including a bonus of ${bonusXp} XP and ${bonusCoins} coins.`
         : firstSubmit && firstExtra > 0
-          ? `اتقبلت المهمة. أول تسليم، فخد ${firstExtra} كوين زيادة.`
-          : "اتقبلت المهمة واتكافأ اللاعب"
-      : "اترفضت المهمة",
+          ? `Mission approved. This was the first submission, so they earned ${firstExtra} extra coins.`
+          : "Mission approved, and the player was rewarded"
+      : "Mission rejected",
   };
 }
 
@@ -194,22 +194,22 @@ export async function adjustXp(_prev: ActionState, formData: FormData): Promise<
   const { supabase } = await requireAdmin();
   const userId = String(formData.get("user_id") ?? "");
   const delta = Number(formData.get("delta"));
-  if (!Number.isInteger(delta) || delta === 0) return { error: "اكتب رقم صحيح غير صفر" };
+  if (!Number.isInteger(delta) || delta === 0) return { error: "Enter a non-zero whole number" };
   const { error } = await supabase.rpc("admin_adjust_xp", { p_user: userId, p_delta: delta });
   if (error) return { error: arabicError(error.message) };
   refreshAdmin();
-  return { ok: delta > 0 ? "اتضاف الـ XP" : "اتخصم الـ XP" };
+  return { ok: delta > 0 ? "XP was added" : "XP was removed" };
 }
 
 export async function adjustCoins(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const { supabase } = await requireAdmin();
   const userId = String(formData.get("user_id") ?? "");
   const delta = Number(formData.get("delta"));
-  if (!Number.isInteger(delta) || delta === 0) return { error: "اكتب رقم صحيح غير صفر" };
+  if (!Number.isInteger(delta) || delta === 0) return { error: "Enter a non-zero whole number" };
   const { error } = await supabase.rpc("admin_adjust_coins", { p_user: userId, p_delta: delta });
   if (error) return { error: arabicError(error.message) };
   refreshAdmin();
-  return { ok: delta > 0 ? "اتضافت الكوينز" : "اتخصمت الكوينز" };
+  return { ok: delta > 0 ? "Coins were added" : "Coins were removed" };
 }
 
 export async function resetStreak(formData: FormData) {
@@ -228,7 +228,7 @@ export async function setUsername(_prev: ActionState, formData: FormData): Promi
   const { error } = await supabase.rpc("admin_set_username", { p_user: userId, p_username: username });
   if (error) return { error: arabicError(error.message) };
   refreshAdmin();
-  return { ok: "اتغير اسم المستخدم" };
+  return { ok: "The username was changed" };
 }
 
 export async function setRole(formData: FormData) {
@@ -256,7 +256,7 @@ export async function banUser(_prev: ActionState, formData: FormData): Promise<A
   });
   if (error) return { error: arabicError(error.message) };
   refreshAdmin();
-  return { ok: "الحساب اتوقف" };
+  return { ok: "The account was suspended" };
 }
 
 export async function unbanUser(formData: FormData) {
@@ -274,17 +274,17 @@ export async function removeUser(formData: FormData) {
   const username = String(formData.get("username") ?? "");
   const email = String(formData.get("email") ?? "");
   if (userId === user.id) {
-    redirect(`/admin/users/${userId}?error=${encodeURIComponent("متقدرش تمسح حسابك")}`);
+    redirect(`/admin/users/${userId}?error=${encodeURIComponent("You can't delete your own account")}`);
   }
 
   try {
     const admin = createAdminClient();
     const { error } = await admin.auth.admin.deleteUser(userId);
     if (error) {
-      redirect(`/admin/users/${userId}?error=${encodeURIComponent("مقدرناش نمسح الحساب. اتأكد من مفتاح الخدمة.")}`);
+      redirect(`/admin/users/${userId}?error=${encodeURIComponent("We couldn't delete the account. Check the service role key.")}`);
     }
   } catch {
-    redirect(`/admin/users/${userId}?error=${encodeURIComponent("مفتاح الخدمة مش متظبط على السيرفر")}`);
+    redirect(`/admin/users/${userId}?error=${encodeURIComponent("The service role key is not set on the server")}`);
   }
 
   await supabase.rpc("admin_log_user_deleted", {
@@ -320,7 +320,7 @@ export async function sendNotification(_prev: ActionState, formData: FormData): 
   });
   if (error) return { error: arabicError(error.message) };
   refreshAdmin();
-  return { ok: audience === "user" ? "الإشعار اتبعت للاعب" : "الإشعار اتبعت للكل" };
+  return { ok: audience === "user" ? "The notification was sent to the player" : "The notification was sent to everyone" };
 }
 
 export async function saveAchievement(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -330,7 +330,7 @@ export async function saveAchievement(_prev: ActionState, formData: FormData): P
     slug: String(formData.get("slug") ?? "").trim().toLowerCase(),
     title: String(formData.get("title") ?? ""),
     description: String(formData.get("description") ?? ""),
-    icon: String(formData.get("icon") ?? "🏆"),
+    icon: String(formData.get("icon") ?? "trophy"),
     condition_type: String(formData.get("condition_type") ?? ""),
     condition_value: String(formData.get("condition_value") ?? ""),
     is_active: formData.get("is_active") === "on",
@@ -365,28 +365,28 @@ export async function saveSettings(_prev: ActionState, formData: FormData): Prom
     coins: Number(formData.get(`reward_${day}`) ?? 0),
   }));
   if (thresholds.some((value) => !Number.isInteger(value))) {
-    return { error: "مستويات الـ XP لازم تكون أرقام صحيحة" };
+    return { error: "XP levels must be whole numbers" };
   }
   if (thresholds.length < 2 || thresholds.length > 50) {
-    return { error: "حط من مستويين لـ 50 مستوى" };
+    return { error: "Enter between 2 and 50 levels" };
   }
   if (thresholds[0] !== 0) {
-    return { error: "أول مستوى لازم يبدأ من 0 XP" };
+    return { error: "The first level must start at 0 XP" };
   }
   if (thresholds.some((value, index) => index > 0 && value <= thresholds[index - 1])) {
-    return { error: "كل مستوى لازم يكون أعلى من اللي قبله" };
+    return { error: "Each level must be higher than the one before it" };
   }
   if (thresholds.some((value) => value > 100000000)) {
-    return { error: "قيمة الـ XP كبيرة أوي" };
+    return { error: "That XP value is too large" };
   }
   if (dailyRewards.some((reward) => !Number.isInteger(reward.coins) || reward.coins < 0 || reward.coins > 1000000)) {
-    return { error: "مكافآت الدخول لازم تكون أرقام" };
+    return { error: "Daily rewards must be whole numbers" };
   }
   const timezone = String(formData.get("timezone") ?? "Africa/Cairo").trim() || "Africa/Cairo";
   try {
     new Intl.DateTimeFormat("en-US", { timeZone: timezone });
   } catch {
-    return { error: "المنطقة الزمنية مش صحيحة" };
+    return { error: "That time zone isn't valid" };
   }
   const difficultyDefaults = {
     easy: { xp: Number(formData.get("easy_xp")), coins: Number(formData.get("easy_coins")) },
@@ -396,7 +396,7 @@ export async function saveSettings(_prev: ActionState, formData: FormData): Prom
   };
   const rewardValues = Object.values(difficultyDefaults).flatMap((item) => [item.xp, item.coins]);
   if (rewardValues.some((value) => !Number.isInteger(value) || value < 0)) {
-    return { error: "مكافآت الصعوبة لازم تكون أرقام" };
+    return { error: "Difficulty rewards must be whole numbers" };
   }
   const admin = createAdminClient();
   const now = new Date().toISOString();
@@ -422,7 +422,7 @@ export async function saveSettings(_prev: ActionState, formData: FormData): Prom
     admin_id: user.id,
     action: "settings_updated",
     target_type: "settings",
-    description: "تحديث إعدادات اللعبة",
+    description: "Updated game settings",
     metadata: {
       timezone,
       level_thresholds: thresholds,
@@ -432,5 +432,5 @@ export async function saveSettings(_prev: ActionState, formData: FormData): Prom
   });
 
   refreshAdmin();
-  return { ok: "الإعدادات اتحفظت" };
+  return { ok: "Settings were saved" };
 }

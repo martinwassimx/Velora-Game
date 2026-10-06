@@ -17,7 +17,7 @@ function withSessionCookies(source: NextResponse, target: NextResponse) {
 
 export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  if (path === "/sw.js" || path === "/manifest.webmanifest") {
+  if (path === "/sw.js" || path === "/manifest.webmanifest" || path === "/api/daily-mission") {
     return NextResponse.next();
   }
   const env = supabaseEnv();

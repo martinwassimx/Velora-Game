@@ -1,5 +1,7 @@
+import { Mark } from "@/components/icons";
 import { PageHeader } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
+import { englishCopy } from "@/lib/copy";
 import { CONDITION_LABEL } from "@/lib/constants";
 import { formatNumber } from "@/lib/format";
 import type { Achievement } from "@/lib/types";
@@ -15,18 +17,18 @@ export default async function AchievementsPage() {
 
   return (
     <div>
-      <PageHeader title="الإنجازات" subtitle="بتتفتح لوحدها لما توصل للشرط." />
+      <PageHeader title="Achievements" subtitle="They unlock on their own when you meet the requirement." />
       <div className="grid gap-3 sm:grid-cols-2">
         {items.map((item) => {
           const open = unlocked.has(item.id);
           return (
             <article key={item.id} className={`card p-4 ${open ? "" : "opacity-60"}`}>
-              <p className="text-3xl">{item.icon}</p>
-              <h2 className="mt-2 text-lg font-extrabold">{item.title}</h2>
-              <p className="text-sm leading-7 text-slate-300">{item.description}</p>
-              <p className="mt-2 text-xs text-slate-400">
+              <Mark value={item.icon} className="h-7 w-7" />
+              <h2 className="mt-2 text-lg font-extrabold">{englishCopy(item.title)}</h2>
+              <p className="text-sm leading-7 text-[#a1a1aa]">{englishCopy(item.description)}</p>
+              <p className="mt-2 text-xs text-[#a1a1aa]">
                 {CONDITION_LABEL[item.condition_type]}: {formatNumber(item.condition_value)}
-                {open ? " · مفتوحة" : " · لسه"}
+                {open ? " · Unlocked" : " · Locked"}
               </p>
             </article>
           );

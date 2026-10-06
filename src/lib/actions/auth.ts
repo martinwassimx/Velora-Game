@@ -24,7 +24,7 @@ async function authClient() {
 export async function login(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
-  if (!email || !password) return { error: "اكتب الإيميل والباسورد" };
+  if (!email || !password) return { error: "Enter your email and password" };
 
   try {
     const supabase = await authClient();
@@ -43,11 +43,11 @@ export async function register(_prev: ActionState, formData: FormData): Promise<
   const password = String(formData.get("password") ?? "");
   const confirm = String(formData.get("confirm") ?? "");
 
-  if (username.length < 3 || username.length > 24) return { error: "اسم المستخدم لازم يكون من 3 لـ 24 حرف" };
-  if (/[<>]/.test(username)) return { error: "اسم المستخدم فيه رموز مش مسموحة" };
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "الإيميل مش مظبوط" };
-  if (password.length < 8) return { error: "الباسورد لازم يكون 8 حروف على الأقل" };
-  if (password !== confirm) return { error: "الباسورد مش متطابق" };
+  if (username.length < 3 || username.length > 24) return { error: "Username must be 3 to 24 characters" };
+  if (/[<>]/.test(username)) return { error: "That username has characters that aren't allowed" };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "That email isn't valid" };
+  if (password.length < 8) return { error: "Password must be at least 8 characters" };
+  if (password !== confirm) return { error: "Passwords don't match" };
 
   let supabase;
   try {
@@ -59,7 +59,7 @@ export async function register(_prev: ActionState, formData: FormData): Promise<
     p_username: username,
   });
   if (nameError) return { error: arabicError(nameError.message, nameError.code) };
-  if (!available) return { error: "الاسم ده متاخد" };
+  if (!available) return { error: "That username is taken" };
 
   const origin = await siteUrl();
   const { data, error } = await supabase.auth.signUp({
@@ -72,7 +72,7 @@ export async function register(_prev: ActionState, formData: FormData): Promise<
   });
   if (error) return { error: arabicError(error.message, error.code) };
   if (!data.session) {
-    return { ok: "عملنا الحساب. لو مطلوب تأكيد، افتح الإيميل وبعدين سجّل دخول." };
+    return { ok: "Account created. If confirmation is required, open the email, then sign in." };
   }
   redirect("/");
 }
@@ -86,7 +86,7 @@ export async function logout() {
 
 export async function forgotPassword(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "الإيميل مش مظبوط" };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "That email isn't valid" };
 
   let supabase;
   try {
@@ -99,14 +99,14 @@ export async function forgotPassword(_prev: ActionState, formData: FormData): Pr
     redirectTo: `${origin}/auth/callback?next=/reset-password`,
   });
   if (error) return { error: arabicError(error.message) };
-  return { ok: "لو الإيميل ده مسجل، هتوصلك رسالة لتغيير الباسورد." };
+  return { ok: "If that email is registered, a reset link is on its way." };
 }
 
 export async function updatePassword(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const password = String(formData.get("password") ?? "");
   const confirm = String(formData.get("confirm") ?? "");
-  if (password.length < 8) return { error: "الباسورد لازم يكون 8 حروف على الأقل" };
-  if (password !== confirm) return { error: "الباسورد مش متطابق" };
+  if (password.length < 8) return { error: "Password must be at least 8 characters" };
+  if (password !== confirm) return { error: "Passwords don't match" };
 
   let supabase;
   try {
@@ -117,7 +117,7 @@ export async function updatePassword(_prev: ActionState, formData: FormData): Pr
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "افتح رابط تغيير الباسورد من الإيميل الأول" };
+  if (!user) return { error: "Open the password reset link from your email first" };
 
   const { error } = await supabase.auth.updateUser({ password });
   if (error) return { error: arabicError(error.message) };

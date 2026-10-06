@@ -16,8 +16,8 @@ type Row = {
 };
 
 function titleOf(tasks: Row["tasks"]) {
-  if (!tasks) return "مهمة";
-  return Array.isArray(tasks) ? tasks[0]?.title ?? "مهمة" : tasks.title;
+  if (!tasks) return "Mission";
+  return Array.isArray(tasks) ? tasks[0]?.title ?? "Mission" : tasks.title;
 }
 
 export default async function SubmissionsPage() {
@@ -35,9 +35,9 @@ export default async function SubmissionsPage() {
 
   return (
     <div>
-      <PageHeader title="طلباتي" subtitle={`بعتّ ${profile.total_submitted_tasks} طلب، واتقبل منهم ${profile.total_completed_tasks}.`} />
+      <PageHeader title="My submissions" subtitle={`You sent ${profile.total_submitted_tasks} submissions, and ${profile.total_completed_tasks} were approved.`} />
       {rows.length === 0 ? (
-        <EmptyState title="لسه مفيش طلبات" body="خلّص مهمة وهتظهر هنا." />
+        <EmptyState title="No submissions yet" body="Finish a mission and it will show up here." />
       ) : (
         <div className="grid gap-3">
           {rows.map((row) => (
@@ -46,8 +46,8 @@ export default async function SubmissionsPage() {
                 <h2 className="font-extrabold">{titleOf(row.tasks)}</h2>
                 <span className="chip">{STATUS_LABEL[row.status]}</span>
               </div>
-              <p className="mt-2 text-sm text-slate-300">{formatDate(row.created_at, timeZone)}</p>
-              {row.rejection_reason ? <p className="mt-2 text-sm text-rose-200">السبب: {row.rejection_reason}</p> : null}
+              <p className="mt-2 text-sm text-[#a1a1aa]">{formatDate(row.created_at, timeZone)}</p>
+              {row.rejection_reason ? <p className="mt-2 text-sm text-rose-200">Reason: {row.rejection_reason}</p> : null}
             </Link>
           ))}
         </div>

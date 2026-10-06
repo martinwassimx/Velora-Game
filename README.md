@@ -116,8 +116,8 @@ velora/
 ## 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/martinwassimx/maro-game.git
-cd maro-game
+git clone https://github.com/martinwassimx/Velora-Game.git
+cd Velora-Game
 ```
 
 ---
